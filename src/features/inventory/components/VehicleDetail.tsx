@@ -149,23 +149,30 @@ export function VehicleDetail() {
           {/* Galería de imágenes */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
             <div>
-              {vehicle.featuredImage && (
-                <img
-                  src={vehicle.featuredImage}
-                  alt={vehicle.title}
-                  className="w-full h-96 object-cover rounded-lg mb-4"
-                />
-              )}
-              <div className="grid grid-cols-4 gap-2">
-                {vehicle.images.map((image) => (
+              {vehicle.images && vehicle.images.length > 0 && (
+                <>
                   <img
-                    key={image.id}
-                    src={image.url}
-                    alt={image.alt}
-                    className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
+                    src={vehicle.featuredImage || vehicle.images[0]}
+                    alt={vehicle.title}
+                    className="w-full h-96 object-cover rounded-lg mb-4"
                   />
-                ))}
-              </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {vehicle.images.map((imageUrl, index) => (
+                      <img
+                        key={index}
+                        src={imageUrl}
+                        alt={`${vehicle.title} - Imagen ${index + 1}`}
+                        className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+              {(!vehicle.images || vehicle.images.length === 0) && (
+                <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-500">Sin imágenes</span>
+                </div>
+              )}
             </div>
 
             {/* Información principal */}

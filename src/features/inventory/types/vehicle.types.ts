@@ -45,9 +45,9 @@ export interface Vehicle {
   description: string;
   features: string[];  // Características adicionales
 
-  // Imágenes
-  images: VehicleImages[];
-  featuredImage?: string; // URL de la imagen principal
+  // Imágenes - Array de URLs (string[])
+  images: string[];
+  featuredImage?: string; // URL de la imagen principal (si no se usa, se toma images[0])
 
   // Estado y ubicación
   condition: VehicleCondition;

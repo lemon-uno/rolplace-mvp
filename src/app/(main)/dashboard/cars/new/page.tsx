@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createCar } from '@/actions/cars'
 import Link from 'next/link'
+import { ImageUploadForm } from '@/features/inventory/components/ImageUploadForm'
 
 export default async function NewCarPage() {
   const supabase = await createClient()
@@ -139,16 +140,13 @@ export default async function NewCarPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="image_url" className="block text-sm font-medium text-gray-300">
-                URL de la Imagen
+              <label className="block text-sm font-medium text-gray-300">
+                Imágenes del Auto *
               </label>
-              <input
-                id="image_url"
-                name="image_url"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              />
+              <p className="text-xs text-gray-500 mb-4">
+                Arrastra imágenes o haz clic para seleccionar (máx. 20 imágenes, 10MB cada una)
+              </p>
+              <ImageUploadForm name="images" />
             </div>
 
             <div className="space-y-2">

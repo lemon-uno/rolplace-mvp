@@ -17,7 +17,7 @@ export interface Car {
   mileage: string | null
   make: string | null
   model: string | null
-  image_url: string | null
+  images: string[] | null
   featured: boolean
   status: 'available' | 'sold' | 'reserved'
   created_at: string

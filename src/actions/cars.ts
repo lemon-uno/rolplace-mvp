@@ -79,6 +79,10 @@ export async function createCar(formData: FormData) {
     redirect('/login')
   }
 
+  // Get images array from FormData
+  const imagesData = formData.get('images')
+  const images = imagesData ? JSON.parse(imagesData as string) : []
+
   const { error } = await supabase
     .from('cars')
     .insert({
@@ -90,7 +94,7 @@ export async function createCar(formData: FormData) {
       mileage: formData.get('mileage') as string,
       make: formData.get('make') as string,
       model: formData.get('model') as string,
-      image_url: formData.get('image_url') as string,
+      images: images.length > 0 ? images : null,
       featured: formData.get('featured') === 'true',
     })
 
@@ -111,6 +115,10 @@ export async function updateCar(id: string, formData: FormData) {
     return { error: 'Not authenticated' }
   }
 
+  // Get images array from FormData
+  const imagesData = formData.get('images')
+  const images = imagesData ? JSON.parse(imagesData as string) : []
+
   const { error } = await supabase
     .from('cars')
     .update({
@@ -121,7 +129,7 @@ export async function updateCar(id: string, formData: FormData) {
       mileage: formData.get('mileage') as string,
       make: formData.get('make') as string,
       model: formData.get('model') as string,
-      image_url: formData.get('image_url') as string,
+      images: images.length > 0 ? images : null,
       featured: formData.get('featured') === 'true',
       status: formData.get('status') as 'available' | 'sold' | 'reserved',
     })

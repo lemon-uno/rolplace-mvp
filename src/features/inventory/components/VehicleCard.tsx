@@ -39,9 +39,9 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 h-full border border-gray-200 hover:border-blue-500">
           {/* Imagen */}
           <div className="relative h-48 overflow-hidden bg-gray-100">
-            {vehicle.featuredImage ? (
+            {vehicle.featuredImage || (vehicle.images && vehicle.images.length > 0) ? (
               <img
-                src={vehicle.featuredImage}
+                src={vehicle.featuredImage || vehicle.images[0]}
                 alt={vehicle.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
