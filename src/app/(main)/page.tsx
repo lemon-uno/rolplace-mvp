@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { Navbar } from '@/components/Navbar';
 
 export default function HomePage() {
   const featuredVehicles = [
@@ -32,9 +33,11 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <Navbar />
+
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
+      <section className="relative bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
           <motion.div
@@ -46,17 +49,17 @@ export default function HomePage() {
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Encuentra tu Auto Perfecto
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100">
+            <p className="text-xl md:text-2xl mb-8 text-cyan-100">
               Tu destino de confianza para autos seminuevos de calidad
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/inventory"
-                className="px-8 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+                className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg shadow-cyan-500/20"
               >
                 Ver Inventario
               </Link>
-              <button className="px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-blue-600 transition-colors">
+              <button className="px-8 py-4 bg-transparent border-2 border-cyan-400 text-white font-bold rounded-lg hover:bg-cyan-400 hover:text-black transition-colors">
                 Contáctanos
               </button>
             </div>
@@ -65,14 +68,14 @@ export default function HomePage() {
 
         {/* Decorative waves */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" className="w-full h-16 md:h-24 fill-white">
+          <svg viewBox="0 0 1440 120" className="w-full h-16 md:h-24 fill-[#0a0a0a]">
             <path d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
           </svg>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-gray-900/50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
@@ -89,10 +92,10 @@ export default function HomePage() {
                 transition={{ delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
                   {stat.number}
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-gray-300">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -124,7 +127,7 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-lg overflow-hidden hover:border-cyan-500/50 transition-all"
               >
                 <div className="relative">
                   <img
@@ -132,26 +135,26 @@ export default function HomePage() {
                     alt={vehicle.title}
                     className="w-full h-56 object-cover"
                   />
-                  <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                     Destacado
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-white mb-2">
                     {vehicle.title}
                   </h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                  <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                     <span>{vehicle.year}</span>
                     <span>•</span>
                     <span>{vehicle.mileage}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-blue-600">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                       {vehicle.price}
                     </span>
                     <Link
                       href={`/inventory/${vehicle.id}`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+                      className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all text-sm font-semibold"
                     >
                       Ver detalles
                     </Link>
@@ -164,7 +167,7 @@ export default function HomePage() {
           <div className="text-center">
             <Link
               href="/inventory"
-              className="inline-block px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-block px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all"
             >
               Ver Todo el Inventario
             </Link>
@@ -173,7 +176,7 @@ export default function HomePage() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-900/50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -210,13 +213,13 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white p-8 rounded-lg shadow-md text-center"
+                className="bg-gray-900/50 backdrop-blur border border-gray-800 p-8 rounded-lg text-center hover:border-cyan-500/50 transition-all"
               >
                 <div className="text-5xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                <h3 className="text-xl font-bold text-white mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <p className="text-gray-400">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -224,7 +227,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <section className="py-16 bg-gradient-to-r from-cyan-600 to-blue-800 text-white">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -234,7 +237,7 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               ¿Listo para encontrar tu próximo auto?
             </h2>
-            <p className="text-xl mb-8 text-blue-100">
+            <p className="text-xl mb-8 text-cyan-100">
               Explora nuestro inventario o contáctanos para ayuda personalizada
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -248,7 +251,7 @@ export default function HomePage() {
                 href="https://wa.me/5215512345678"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors"
+                className="px-8 py-4 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-colors"
               >
                 WhatsApp
               </a>
