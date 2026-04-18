@@ -23,13 +23,8 @@ export function GoogleSignInButton({
     const browserOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
     const origin = envUrl || browserOrigin
 
-    // Debug logs
-    console.log('🔍 OAuth Debug Info:', {
-      envUrl,
-      browserOrigin,
-      finalOrigin: origin,
-      redirectTo: `${origin}/callback?next=${encodeURIComponent(redirectTo)}`
-    })
+    // Debug alert - THIS WILL BE VISIBLE
+    alert(`🔍 OAuth Debug:\n\nenvUrl: ${envUrl}\nbrowserOrigin: ${browserOrigin}\nfinalOrigin: ${origin}\n\nWill redirect to: ${origin}/callback`)
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
