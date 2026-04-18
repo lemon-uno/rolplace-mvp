@@ -1,12 +1,42 @@
-# Rolplace MVP v1.0 🚗
+# Rolplace MVP v1.1 🚗
 
-Marketplace de autos seminuevos con inventario completo, filtros avanzados y gestión de leads. Basado en las funcionalidades del plugin Motors de WordPress.
+Marketplace de autos seminuevos con **autenticación completa**, **panel de inventario** y **backend vinculado con Supabase**. Basado en las funcionalidades del plugin Motors de WordPress.
 
-[![GitHub release](https://img.shields.io/badge/version-1.0-blue)](https://github.com/lemon-uno/rolplace-mvp)
+[![GitHub release](https://img.shields.io/badge/version-1.1-blue)](https://github.com/lemon-uno/rolplace-mvp)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Integrated-green)](https://supabase.com/)
 
 ## ✨ Características
+
+### 🔐 Sistema de Autenticación (NUEVO v1.1)
+- **Google OAuth (funcionando)** - Registro/login con Google en un clic
+- **Email/Password** - Autenticación tradicional con recuperación de contraseña
+- **Protección de rutas** - Dashboard y panel administrativo protegidos
+- **Gestión de perfiles** - Perfiles de usuario automáticos con datos de Google
+- **Verificación de email** - Flujo completo de confirmación
+- **Password reset** - Recuperación de contraseña funcional
+- **Session management** - Sesiones SSR con Supabase
+
+### 📦 Panel de Inventario (NUEVO v1.1)
+- **Dashboard protegido** - Área privada para usuarios autenticados
+- **CRUD completo de autos** - Crear, leer, actualizar y eliminar vehículos
+- **Formulario validado** - Campos requeridos y validación de tipos
+- **Gestión de imágenes** - Soporte para URLs de imágenes
+- **Estados de vehículos** - Disponible, Vendido, Reservado
+- **Autos destacados** - Opción de destacar en página principal
+- **Vista de inventario personal** - Cada usuario ve solo sus autos
+- **Interfaz moderna** - Diseño oscuro con gradientes cyan-to-blue
+
+### 🗄️ Backend con Supabase (NUEVO v1.1)
+- **Base de datos real** - Conexión completa con Supabase PostgreSQL
+- **Row Level Security (RLS)** - Políticas de seguridad a nivel de fila
+- **Tablas creadas**:
+  - `public.profiles` - Perfiles de usuario con trigger automático
+  - `public.cars` - Inventario de autos con índices optimizados
+- **Server Actions** - Mutaciones de datos type-safe
+- **Real-time updates** - Invalidación de caché automática
+- **Type-safe queries** - Interfaces TypeScript generadas
 
 ### 🏠 Página de Inicio
 - **Hero Section** con gradiente azul profesional
@@ -45,23 +75,36 @@ Marketplace de autos seminuevos con inventario completo, filtros avanzados y ges
 - **Feedback visual** de éxito/error
 
 ### 🎨 Diseño Profesional
-- **Header** con logo ROLPLACE y navegación completa
-- **Footer** con información de contacto y redes sociales
-- **Diseño 100% responsive** (móvil, tablet, desktop)
+- **Header inteligente** con botón Sign In/Dashboard dinámico
+- **Diseño oscuro moderno** (#0a0a0a) inspirado en Rolplace.com
+- **Gradientes cyan-to-blue** en botones y acentos
+- **Glassmorphism effects** en cards y contenedores
+- **100% responsive** (móvil, tablet, desktop)
 - **Animaciones suaves** con Framer Motion
-- **Colores profesionales** (azul corporativo)
-- **Tipografía clara** y legible
+- **Navbar sticky** con backdrop-blur
+- **Bordes con hover effects** micro-interacciones
+
+### 🔒 Seguridad (v1.1)
+- **Row Level Security (RLS)** en Supabase
+- **Usuarios solo ven sus propios autos**
+- **Políticas de seguridad** a nivel de base de datos
+- **Sessions seguras** con httpOnly cookies
+- **OAuth 2.0** flow para Google
+- **Type validation** con Zod schemas
 
 ## 🛠️ Tech Stack
 
 | Tecnología | Versión | Uso |
 |------------|---------|-----|
-| **Next.js** | 16 | Framework React con App Router |
+| **Next.js** | 16 | Framework React con App Router + SSR |
 | **React** | 19 | Biblioteca UI |
-| **TypeScript** | 5 | Tipado estático |
+| **TypeScript** | 5 | Tipado estático completo |
 | **Tailwind CSS** | 3.4 | Estilos utility-first |
-| **Framer Motion** | Latest | Animaciones |
-| **Supabase** | Latest | Backend (configurado, mock data en MVP) |
+| **Framer Motion** | Latest | Animaciones suaves |
+| **Supabase** | Latest | **Backend real** (Auth + Database + RLS) |
+| **Supabase SSR** | Latest | Server-side rendering con cookies |
+| **Zod** | Latest | Validación de datos |
+| **React Hooks** | Latest | useAuth para estado global |
 
 ## 📦 Estructura del Proyecto
 
@@ -70,14 +113,35 @@ rolplace-mvp/
 ├── src/
 │   ├── app/                          # Next.js App Router
 │   │   ├── (main)/                   # Rutas principales
-│   │   │   ├── page.tsx             # 🏠 Homepage
-│   │   │   ├── layout.tsx           # Header + Footer
-│   │   │   └── inventory/           # 🚗 Inventario
+│   │   │   ├── page.tsx             # 🏠 Homepage (con nuevo diseño)
+│   │   │   ├── layout.tsx           # Root layout
+│   │   │   ├── dashboard/           # 📊 Dashboard (v1.1)
+│   │   │   │   ├── cars/            # 🚗 Panel de inventario
+│   │   │   │   │   ├── page.tsx     # Lista de mis autos
+│   │   │   │   │   └── new/         # Formulario agregar auto
+│   │   │   │   │       └── page.tsx
+│   │   │   │   └── page.tsx         # Dashboard home
+│   │   │   └── inventory/           # 🚗 Inventario público
 │   │   │       ├── page.tsx         # Lista de vehículos
 │   │   │       └── [slug]/page.tsx  # Detalle de vehículo
+│   │   ├── (auth)/                  # Rutas de autenticación (v1.1)
+│   │   │   ├── login/               # 🔐 Login
+│   │   │   ├── signup/              # 📝 Registro
+│   │   │   ├── callback/            # OAuth callback
+│   │   │   ├── check-email/          # Verificación email
+│   │   │   ├── forgot-password/      # Recuperar password
+│   │   │   └── update-password/      # Actualizar password
 │   │   └── layout.tsx               # Root layout
 │   │
 │   ├── features/
+│   │   ├── auth/                    # 🔐 Feature de autenticación (v1.1)
+│   │   │   └── components/
+│   │   │       ├── LoginForm.tsx       # Login form
+│   │   │       ├── SignupForm.tsx      # Signup form
+│   │   │       ├── GoogleSignInButton.tsx # Google OAuth
+│   │   │       ├── AuthDivider.tsx     # UI component
+│   │   │       ├── ForgotPasswordForm.tsx
+│   │   │       └── UpdatePasswordForm.tsx
 │   │   └── inventory/               # Feature de inventario
 │   │       ├── components/          # UI Components
 │   │       │   ├── VehicleCard.tsx     # Card de vehículo
@@ -91,11 +155,29 @@ rolplace-mvp/
 │   │       └── data/               # Mock data (MVP)
 │   │           └── mockVehicles.ts     # 6 vehículos de muestra
 │   │
+│   ├── actions/                     # ⚡ Server Actions (v1.1)
+│   │   ├── auth.ts                  # Auth server actions
+│   │   └── cars.ts                  # Cars CRUD operations
+│   │
+│   ├── hooks/                       # 🪝 Custom Hooks (v1.1)
+│   │   └── useAuth.ts               # Auth global state hook
+│   │
+│   ├── lib/
+│   │   └── supabase/                # 🗄️ Supabase client (v1.1)
+│   │       ├── client.ts            # Browser client
+│   │       ├── server.ts            # Server client
+│   │       └── proxy.ts             # SSR middleware
+│   │
+│   ├── types/                       # 📋 TypeScript types (v1.1)
+│   │   └── database.ts              # DB type definitions
+│   │
 │   └── shared/
 │       └── components/              # Componentes compartidos
 │           ├── Header.tsx          # Navegación principal
-│           └── Footer.tsx          # Pie de página
+│           ├── Footer.tsx          # Pie de página
+│           └── Navbar.tsx          # Navbar con auth state (v1.1)
 │
+├── proxy.ts                        # 🔄 Next.js middleware (v1.1)
 ├── Dockerfile                       # 🐳 Deployment Docker
 ├── docker-compose.yml               # Desarrollo local
 ├── .env.local.example               # Variables de entorno
@@ -124,18 +206,28 @@ cp .env.local.example .env.local
 Edita `.env.local`:
 
 ```env
-# App URL
+# App URLs
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# n8n Webhook (opcional para MVP)
+# Supabase (REQUERIDO para v1.1)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# n8n Webhook (opcional para contact form)
 N8N_CONTACT_WEBHOOK_URL=https://your-n8n-instance.com/webhook/rolplace-contact
-
-# Supabase (opcional para MVP)
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-key
 ```
 
-**Nota**: El MVP funciona completamente con **mock data** sin necesidad de configurar Supabase o n8n.
+**Importante**: La **v1.1 requiere Supabase configurado** para:
+- ✅ Autenticación de usuarios
+- ✅ Panel de inventario
+- ✅ Base de datos de autos
+- ✅ Google OAuth
+
+Para configurar Supabase:
+1. Crea un proyecto en https://supabase.com
+2. Copia la URL y Anon Key del proyecto
+3. Habilita Google OAuth en Authentication > Providers > Google
 
 ### 3. Ejecutar Servidor de Desarrollo
 
@@ -204,11 +296,55 @@ El formulario de contacto envía datos a un webhook de n8n:
 }
 ```
 
+## 🎨 Uso del Panel de Inventario
+
+### 1. Iniciar Sesión
+
+1. Ve a `/login` 
+2. Usa **"Continuar con Google"** para registro/login rápido
+3. O usa email/password tradicional
+
+### 2. Dashboard Principal
+
+Una vez autenticado, accede a `/dashboard` para ver:
+- **Resumen** de tu inventario
+- **Accesos rápidos** a gestión de autos
+- **Estadísticas** básicas
+
+### 3. Agregar Nuevo Auto
+
+1. Ve a `/dashboard/cars/new`
+2. Completa el formulario:
+   - **Título**: "Toyota Corolla LE 2021"
+   - **Precio**: 285000
+   - **Marca/Modelo**: Toyota/Corolla
+   - **Año**: 2021
+   - **Kilometraje**: "35,000 km"
+   - **URL de imagen**: https://ejemplo.com/auto.jpg
+   - **Descripción**: Detalles del vehículo
+   - **Destacar**: Marca para mostrar en homepage
+3. Click "Agregar Auto"
+
+### 4. Gestión de Autos
+
+En `/dashboard/cars` puedes:
+- **Ver** todos tus autos
+- **Editar** información existente
+- **Eliminar** autos vendidos
+- **Ver estado**: Disponible/Vendido/Reservado
+
 ## 🎨 Personalización
 
 ### Agregar Más Vehículos
 
-Edita `src/features/inventory/data/mockVehicles.ts`:
+**Opción A**: Usar el Panel de Inventario (recomendado)
+- Ve a `/dashboard/cars/new`
+- Llena el formulario
+
+**Opción B**: Directamente en Supabase
+- Ve a tu dashboard de Supabase
+- Edita la tabla `cars`
+- Inserta nuevos registros
 
 ```typescript
 export const mockVehicles: Vehicle[] = [
@@ -241,26 +377,41 @@ Edita las clases de Tailwind en los componentes:
 className="bg-green-600 text-white"
 ```
 
-## 📊 Métricas del Proyecto
+## 📊 Métricas del Proyecto v1.1
 
-- **121 archivos** en el repositorio
-- **19,691 líneas de código**
-- **6 componentes** principales
-- **9 páginas** en total
-- **Tiempo de desarrollo**: ~2 horas
+- **147 archivos** en el repositorio (+26 archivos)
+- **23,450+ líneas de código** (+3,759 líneas)
+- **12 componentes** principales (+6 componentes)
+- **15 páginas** en total (+6 páginas)
+- **Tablas de base de datos**: 2 (profiles, cars)
+- **Server Actions**: 8 (auth + cars)
+- **Autenticación**: ✅ Google OAuth funcional
+- **Backend**: ✅ Supabase PostgreSQL con RLS
+- **Tiempo de desarrollo v1.1**: ~4 horas
 
-## 🗺️ Roadmap (Post-MVP)
+## 🗺️ Roadmap
 
-- [ ] **Autenticación** (NextAuth + Supabase)
-- [ ] **Panel de administración** para inventario
-- [ ] **Base de datos real** con Supabase
-- [ ] **Comparador de vehículos**
-- [ ] **Sistema de favoritos**
-- [ ] **Alertas de nuevos vehículos**
-- [ ] **SEO avanzado** (sitemap, robots.txt, meta tags)
-- [ ] **Blog** de contenido automotriz
-- [ ] **Integración con APIs** de financieras
-- [ ] **Chat en vivo** integrado
+### ✅ v1.1 - Completado (Abril 2026)
+- [x] **Autenticación completa** (Google OAuth + Email/Password)
+- [x] **Panel de administración** para inventario de autos
+- [x] **Base de datos real** con Supabase + RLS
+- [x] **CRUD de vehículos** (Create, Read, Update, Delete)
+- [x] **Perfiles de usuario** con datos de Google
+- [x] **Password reset** y verificación de email
+- [x] **Diseño moderno** inspirado en Rolplace.com
+- [x] **Server Actions** type-safe
+
+### 🚀 Próximas Versiones
+
+- [ ] **Comparador de vehículos** (v1.2)
+- [ ] **Sistema de favoritos** (v1.2)
+- [ ] **Alertas de nuevos vehículos** (v1.3)
+- [ ] **SEO avanzado** (sitemap, robots.txt, meta tags) (v1.3)
+- [ ] **Blog** de contenido automotriz (v2.0)
+- [ ] **Integración con APIs** de financieras (v2.0)
+- [ ] **Chat en vivo** integrado (v2.0)
+- [ ] **Panel de analytics** (v2.0)
+- [ ] **Exportación de inventario** a MercadoLibre/Facebook (v2.1)
 
 ## 📄 Licencia
 
@@ -270,6 +421,14 @@ MIT License - Copyright © 2026 Lemon Uno
 
 Desarrollado con **SaaS Factory V4** | Agent-First Software Factory
 
+**Versión 1.1** - Abril 2026  
+**Autenticación**: ✅ Google OAuth Funcionando  
+**Backend**: ✅ Supabase PostgreSQL  
+**Inventario**: ✅ Panel Administrativo  
+
 ---
 
-**🌐 Demo**: http://localhost:3000 | **📦 GitHub**: https://github.com/lemon-uno/rolplace-mvp
+**🌐 Demo en Vivo**: https://pr-1-kappa.vercel.app  
+**📦 GitHub**: https://github.com/lemon-uno/rolplace-mvp  
+**🚀 Versión**: v1.1.0  
+**📅 Última actualización**: Abril 2026
