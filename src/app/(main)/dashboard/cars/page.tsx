@@ -94,9 +94,9 @@ export default async function DashboardCarsPage() {
                 key={car.id}
                 className="overflow-hidden rounded-lg border border-gray-800 bg-gray-900/50 backdrop-blur"
               >
-                {car.image_url && (
+                {car.images && car.images.length > 0 && (
                   <img
-                    src={car.image_url}
+                    src={car.images[0]}
                     alt={car.title}
                     className="h-48 w-full object-cover"
                   />

@@ -34,7 +34,7 @@ export function ImageUpload({
 
     try {
       const formData = new FormData()
-      files.forEach(file => {
+      Array.from(files).forEach(file => {
         formData.append('images', file)
       })
 

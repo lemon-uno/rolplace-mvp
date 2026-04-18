@@ -33,18 +33,8 @@ export const mockVehicles: Vehicle[] = [
       'Asientos de tela'
     ],
     images: [
-      {
-        id: '1-1',
-        url: 'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800',
-        alt: 'Toyota Corolla LE 2021 - Frente',
-        order: 1
-      },
-      {
-        id: '1-2',
-        url: 'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800',
-        alt: 'Toyota Corolla LE 2021 - Lateral',
-        order: 2
-      }
+      'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800',
+      'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800'
     ],
     featuredImage: 'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?w=800',
     condition: 'semi-new',
@@ -83,18 +73,8 @@ export const mockVehicles: Vehicle[] = [
       'Asientos con calefacción'
     ],
     images: [
-      {
-        id: '2-1',
-        url: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800',
-        alt: 'Honda Civic Touring 2022',
-        order: 1
-      },
-      {
-        id: '2-2',
-        url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800',
-        alt: 'Honda Civic Touring 2022 - Interior',
-        order: 2
-      }
+      'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800',
+      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800'
     ],
     featuredImage: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800',
     condition: 'semi-new',
@@ -132,12 +112,7 @@ export const mockVehicles: Vehicle[] = [
       'Faros自适应'
     ],
     images: [
-      {
-        id: '3-1',
-        url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800',
-        alt: 'Volkswagen Jetta GLI 2020',
-        order: 1
-      }
+      'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800'
     ],
     featuredImage: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800',
     condition: 'semi-new',
@@ -175,12 +150,7 @@ export const mockVehicles: Vehicle[] = [
       'Faro自动高低调节'
     ],
     images: [
-      {
-        id: '4-1',
-        url: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800',
-        alt: 'Nissan Versa Advance 2023',
-        order: 1
-      }
+      'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800'
     ],
     featuredImage: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800',
     condition: 'semi-new',
@@ -219,12 +189,7 @@ export const mockVehicles: Vehicle[] = [
       'Rines de 18"'
     ],
     images: [
-      {
-        id: '5-1',
-        url: 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800',
-        alt: 'Mazda 3 Grand Touring 2021',
-        order: 1
-      }
+      'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800'
     ],
     featuredImage: 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800',
     condition: 'semi-new',
@@ -263,12 +228,7 @@ export const mockVehicles: Vehicle[] = [
       'Sistema HTRAC AWD'
     ],
     images: [
-      {
-        id: '6-1',
-        url: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800',
-        alt: 'Hyundai Tucson Limited 2022',
-        order: 1
-      }
+      'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800'
     ],
     featuredImage: 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=800',
     condition: 'semi-new',
