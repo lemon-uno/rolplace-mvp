@@ -18,10 +18,13 @@ export function GoogleSignInButton({
     setLoading(true)
     const supabase = createClient()
 
+    // Get current origin (works in both dev and production)
+    const origin = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/callback?next=${redirectTo}`,
+        redirectTo: `${origin}/callback?next=${encodeURIComponent(redirectTo)}`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
