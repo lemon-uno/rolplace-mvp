@@ -18,8 +18,8 @@ export function GoogleSignInButton({
     setLoading(true)
     const supabase = createClient()
 
-    // Get current origin (works in both dev and production)
-    const origin = typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    // Get current origin - NEXT_PUBLIC_SITE_URL has priority over window.location.origin
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
