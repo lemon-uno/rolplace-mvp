@@ -19,12 +19,7 @@ export function GoogleSignInButton({
     const supabase = createClient()
 
     // Get current origin - NEXT_PUBLIC_SITE_URL has priority over window.location.origin
-    const envUrl = process.env.NEXT_PUBLIC_SITE_URL
-    const browserOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-    const origin = envUrl || browserOrigin
-
-    // Debug alert - THIS WILL BE VISIBLE
-    alert(`🔍 OAuth Debug:\n\nenvUrl: ${envUrl}\nbrowserOrigin: ${browserOrigin}\nfinalOrigin: ${origin}\n\nWill redirect to: ${origin}/callback`)
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
