@@ -18,8 +18,16 @@ export function GoogleSignInButton({
     setLoading(true)
     const supabase = createClient()
 
-    // Get current origin - NEXT_PUBLIC_SITE_URL has priority over window.location.origin
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+    // Get current origin - use window.location.origin in browser, fallback to env var or localhost
+    const getOrigin = () => {
+      if (typeof window !== 'undefined') {
+        return window.location.origin
+      }
+      // Server-side or build time
+      return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    }
+
+    const origin = getOrigin()
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
