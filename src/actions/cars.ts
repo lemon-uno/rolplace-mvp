@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { Car } from '@/types/database'
 
@@ -65,7 +66,7 @@ export async function createCar(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'Not authenticated' }
+    redirect('/login')
   }
 
   const { data: profile } = await supabase
@@ -75,7 +76,7 @@ export async function createCar(formData: FormData) {
     .single()
 
   if (!profile) {
-    return { error: 'Profile not found' }
+    redirect('/login')
   }
 
   const { error } = await supabase
@@ -94,12 +95,12 @@ export async function createCar(formData: FormData) {
     })
 
   if (error) {
-    return { error: error.message }
+    redirect('/dashboard/cars/new?error=' + encodeURIComponent(error.message))
   }
 
   revalidatePath('/dashboard')
   revalidatePath('/inventory')
-  return { success: true }
+  redirect('/dashboard/cars')
 }
 
 export async function updateCar(id: string, formData: FormData) {
