@@ -13,12 +13,20 @@ export function VehicleDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     if (params.slug) {
       loadVehicle(params.slug as string);
     }
   }, [params.slug]);
+
+  // Reset selected image when vehicle changes
+  useEffect(() => {
+    if (vehicle) {
+      setSelectedImageIndex(0);
+    }
+  }, [vehicle]);
 
   const loadVehicle = async (slug: string) => {
     setLoading(true);
@@ -132,6 +140,24 @@ export function VehicleDetail() {
     'used': 'Usado'
   };
 
+  const handlePreviousImage = () => {
+    if (!vehicle?.images || vehicle.images.length === 0) return;
+    setSelectedImageIndex((prev) =>
+      prev === 0 ? vehicle.images.length - 1 : prev - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    if (!vehicle?.images || vehicle.images.length === 0) return;
+    setSelectedImageIndex((prev) =>
+      prev === vehicle.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const selectedImage = vehicle?.images && vehicle.images.length > 0
+    ? vehicle.images[selectedImageIndex]
+    : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -151,19 +177,63 @@ export function VehicleDetail() {
             <div>
               {vehicle.images && vehicle.images.length > 0 && (
                 <>
-                  <img
-                    src={vehicle.featuredImage || vehicle.images[0]}
-                    alt={vehicle.title}
-                    className="w-full h-96 object-cover rounded-lg mb-4"
-                  />
+                  {/* Imagen principal con navegación */}
+                  <div className="relative mb-4">
+                    <img
+                      src={selectedImage || vehicle.featuredImage || vehicle.images[0]}
+                      alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
+                      className="w-full h-96 object-cover rounded-lg"
+                    />
+
+                    {/* Contador de imágenes */}
+                    <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {selectedImageIndex + 1} de {vehicle.images.length}
+                    </div>
+
+                    {/* Flechas de navegación */}
+                    {vehicle.images.length > 1 && (
+                      <>
+                        <button
+                          onClick={handlePreviousImage}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors"
+                          title="Imagen anterior"
+                        >
+                          ←
+                        </button>
+                        <button
+                          onClick={handleNextImage}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors"
+                          title="Siguiente imagen"
+                        >
+                          →
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Miniaturas */}
                   <div className="grid grid-cols-4 gap-2">
                     {vehicle.images.map((imageUrl, index) => (
-                      <img
+                      <button
                         key={index}
-                        src={imageUrl}
-                        alt={`${vehicle.title} - Imagen ${index + 1}`}
-                        className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75 transition-opacity"
-                      />
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`relative w-full h-20 rounded-lg overflow-hidden transition-all ${
+                          index === selectedImageIndex
+                            ? 'ring-2 ring-blue-500 ring-offset-2'
+                            : 'hover:opacity-75'
+                        }`}
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`${vehicle.title} - Imagen ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        {index === selectedImageIndex && (
+                          <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">●</span>
+                          </div>
+                        )}
+                      </button>
                     ))}
                   </div>
                 </>
