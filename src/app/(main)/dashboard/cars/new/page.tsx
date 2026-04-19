@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createCar } from '@/actions/cars'
+import { NewCarForm } from '@/features/cars/components/NewCarForm'
 import Link from 'next/link'
-import { ImageUploadForm } from '@/features/inventory/components/ImageUploadForm'
 
 export default async function NewCarPage() {
   const supabase = await createClient()
@@ -10,6 +10,11 @@ export default async function NewCarPage() {
 
   if (!user) {
     redirect('/login')
+  }
+
+  async function handleCreateCar(formData: FormData) {
+    'use server'
+    await createCar(formData)
   }
 
   return (
@@ -47,149 +52,7 @@ export default async function NewCarPage() {
         </div>
 
         <div className="rounded-lg border border-gray-800 bg-gray-900/50 backdrop-blur p-8">
-          <form action={createCar} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="title" className="block text-sm font-medium text-gray-300">
-                  Título del Auto *
-                </label>
-                <input
-                  id="title"
-                  name="title"
-                  type="text"
-                  required
-                  placeholder="Ej: Toyota Corolla LE 2021"
-                  className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="price" className="block text-sm font-medium text-gray-300">
-                  Precio (MXN) *
-                </label>
-                <input
-                  id="price"
-                  name="price"
-                  type="number"
-                  required
-                  min="0"
-                  step="0.01"
-                  placeholder="285000"
-                  className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="make" className="block text-sm font-medium text-gray-300">
-                  Marca
-                </label>
-                <input
-                  id="make"
-                  name="make"
-                  type="text"
-                  placeholder="Ej: Toyota"
-                  className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="model" className="block text-sm font-medium text-gray-300">
-                  Modelo
-                </label>
-                <input
-                  id="model"
-                  name="model"
-                  type="text"
-                  placeholder="Ej: Corolla"
-                  className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label htmlFor="year" className="block text-sm font-medium text-gray-300">
-                  Año *
-                </label>
-                <input
-                  id="year"
-                  name="year"
-                  type="number"
-                  required
-                  min="1900"
-                  max={new Date().getFullYear() + 1}
-                  placeholder="2021"
-                  className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="mileage" className="block text-sm font-medium text-gray-300">
-                  Kilometraje
-                </label>
-                <input
-                  id="mileage"
-                  name="mileage"
-                  type="text"
-                  placeholder="Ej: 35,000 km"
-                  className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">
-                Imágenes del Auto *
-              </label>
-              <p className="text-xs text-gray-500 mb-4">
-                Arrastra imágenes o haz clic para seleccionar (máx. 20 imágenes, 10MB cada una)
-              </p>
-              <ImageUploadForm name="images" />
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-300">
-                Descripción
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                placeholder="Describe las características del auto..."
-                className="w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                id="featured"
-                name="featured"
-                type="checkbox"
-                value="true"
-                className="h-4 w-4 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-cyan-500"
-              />
-              <label htmlFor="featured" className="text-sm font-medium text-gray-300">
-                Destacar este auto en la página principal
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <Link
-                href="/dashboard/cars"
-                className="rounded-md border border-gray-700 bg-gray-800 px-6 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-700"
-              >
-                Cancelar
-              </Link>
-              <button
-                type="submit"
-                className="rounded-md bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-cyan-500/20 transition-all hover:from-cyan-600 hover:to-blue-600"
-              >
-                Agregar Auto
-              </button>
-            </div>
-          </form>
+          <NewCarForm />
         </div>
       </main>
     </div>

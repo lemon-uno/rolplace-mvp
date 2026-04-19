@@ -6,34 +6,95 @@ import type { Car } from '@/types/database';
  * Convierte un Car de la base de datos a Vehicle de la aplicación
  */
 function carToVehicle(car: Car): Vehicle {
+  const featureMap: Record<string, string> = {
+    xenon_headlights: 'Faros de xenón',
+    aluminum_rims: 'Rines de aluminio',
+    fog_lights: 'Luces de niebla',
+    front_fog_lights: 'Luces de niebla frontales',
+    rear_fog_lights: 'Luces de niebla traseras',
+    roof_rack: 'Barra porta equipaje',
+    color_matched_bumpers: 'Defensas a color',
+    tow_bar: 'Barra remolcadora',
+    rear_wiper: 'Limpiaparabrisas trasero',
+    folding_rear_seats: 'Asientos traseros abatibles',
+    cup_holders: 'Portavasos',
+    leather_upholstery: 'Tapicería de piel',
+    rear_headrests: 'Cabeceras asientos traseros',
+    cruise_control: 'Piloto automático',
+    lights_reminder: 'Recordatorio de luces encendidas',
+    trip_computer: 'Computadora de viaje',
+    sunroof: 'Techo corredizo',
+    climate_control: 'Control de clima',
+    rain_sensor: 'Sensor de lluvia',
+    rear_defroster: 'Desempañador trasero',
+    air_conditioning: 'Aire acondicionado',
+    power_mirrors: 'Espejos eléctricos',
+    headlight_control: 'Control de faros',
+    power_driver_seat: 'Asiento piloto ajustes eléctricos',
+    light_sensor: 'Sensor de luces',
+    parking_sensor: 'Sensor de estacionamiento',
+    power_windows: 'Cristales eléctricos',
+    remote_trunk_release: 'Apertura remota de cajuela',
+    power_seats: 'Asientos ajustes eléctricos',
+    central_locking: 'Cerradura centralizada',
+    spare_tire: 'Llanta de refacción',
+    abs_brakes: 'Frenos ABS',
+    alarm: 'Alarma',
+    driver_airbag: 'Bolsas de aire conductor',
+    electronic_brake_assist: 'Asistente de frenado electrónico',
+    engine_immobilizer: 'Inmovilizador de motor',
+    passenger_airbag: 'Bolsas de aire pasajero',
+    side_airbags: 'Bolsas de aire laterales',
+    stability_control: 'Control de estabilidad',
+    steering_wheel_controls: 'Controles en volante',
+    third_brake_light: 'Tercer luz trasera',
+    curtain_airbags: 'Bolsas de aire de cortina',
+    armor: 'Blindaje',
+    gps: 'GPS',
+    am_fm_radio: 'Radio AM/FM',
+    bluetooth: 'Bluetooth',
+    cd_player: 'CD player',
+    dvd_player: 'DVD',
+    mp3_player: 'MP3',
+    sd_card: 'SD card',
+    usb_port: 'USB',
+  }
+
+  const features: string[] = []
+  for (const [key, label] of Object.entries(featureMap)) {
+    if ((car as any)[key] === true) {
+      features.push(label)
+    }
+  }
+
   return {
     id: car.id,
     title: car.title,
-    slug: car.id, // Usar ID como slug mientras no tengamos slug real
+    slug: car.id,
     make: car.make || 'Marca',
     model: car.model || 'Modelo',
     year: car.year,
-    version: car.model || '',
-    color: 'Blanco', // Default, ya que no tenemos este campo
-    transmission: 'automatic', // Default
-    fuelType: 'gasoline', // Default
+    version: car.version || car.model || '',
+    color: car.exterior_color || 'Blanco',
+    transmission: 'automatic',
+    fuelType: 'gasoline',
     mileage: car.mileage ? parseInt(car.mileage.replace(/[^\d]/g, '')) || 0 : 0,
-    doors: 4, // Default
-    seats: 5, // Default
+    doors: 4,
+    seats: 5,
     price: Number(car.price),
     description: car.description || 'Sin descripción',
-    features: [], // Default, vacío por ahora
+    features,
     images: car.images || [],
     featuredImage: car.images && car.images.length > 0 ? car.images[0] : undefined,
-    condition: 'used', // Default
+    condition: 'used',
     status: car.status as any,
-    location: 'México', // Default
+    location: 'México',
     createdAt: new Date(car.created_at),
     updatedAt: new Date(car.updated_at),
     publishedAt: new Date(car.created_at),
     views: 0,
-    featured: car.featured || false
-  };
+    featured: car.featured || false,
+  }
 }
 
 /**

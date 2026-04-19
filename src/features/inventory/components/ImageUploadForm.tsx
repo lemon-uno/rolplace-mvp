@@ -6,16 +6,22 @@ import { ImageUpload } from './ImageUpload'
 interface ImageUploadFormProps {
   name: string
   maxImages?: number
+  onImagesChange?: (images: string[]) => void
 }
 
-export function ImageUploadForm({ name, maxImages = 20 }: ImageUploadFormProps) {
+export function ImageUploadForm({ name, maxImages = 20, onImagesChange }: ImageUploadFormProps) {
   const [images, setImages] = useState<string[]>([])
+
+  const handleChange = (newImages: string[]) => {
+    setImages(newImages)
+    onImagesChange?.(newImages)
+  }
 
   return (
     <>
       <ImageUpload
         value={images}
-        onChange={setImages}
+        onChange={handleChange}
         maxImages={maxImages}
       />
       <input
