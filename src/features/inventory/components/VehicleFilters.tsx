@@ -116,24 +116,24 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Año
           </label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="number"
               placeholder="Mín"
               min={2010}
-              max={2024}
+              max={2026}
               value={filters.year?.min || ''}
               onChange={(e) => handleYearChange('min', e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="number"
               placeholder="Máx"
               min={2010}
-              max={2024}
+              max={2026}
               value={filters.year?.max || ''}
               onChange={(e) => handleYearChange('max', e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Precio (MXN)
           </label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="number"
               placeholder="Mín"
@@ -151,7 +151,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               min={0}
               value={filters.price?.min || ''}
               onChange={(e) => handlePriceChange('min', e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="number"
@@ -160,7 +160,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               min={0}
               value={filters.price?.max || ''}
               onChange={(e) => handlePriceChange('max', e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>

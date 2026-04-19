@@ -1,5 +1,40 @@
 import { Vehicle, VehicleFilters, VehicleListResponse } from '../types/vehicle.types';
-import { mockVehicles } from '../data/mockVehicles';
+import { getCars, getCarById } from '@/actions/cars';
+import type { Car } from '@/types/database';
+
+/**
+ * Convierte un Car de la base de datos a Vehicle de la aplicación
+ */
+function carToVehicle(car: Car): Vehicle {
+  return {
+    id: car.id,
+    title: car.title,
+    slug: car.id, // Usar ID como slug mientras no tengamos slug real
+    make: car.make || 'Marca',
+    model: car.model || 'Modelo',
+    year: car.year,
+    version: car.model || '',
+    color: 'Blanco', // Default, ya que no tenemos este campo
+    transmission: 'automatic', // Default
+    fuelType: 'gasoline', // Default
+    mileage: car.mileage ? parseInt(car.mileage.replace(/[^\d]/g, '')) || 0 : 0,
+    doors: 4, // Default
+    seats: 5, // Default
+    price: Number(car.price),
+    description: car.description || 'Sin descripción',
+    features: [], // Default, vacío por ahora
+    images: car.images || [],
+    featuredImage: car.images && car.images.length > 0 ? car.images[0] : undefined,
+    condition: 'used', // Default
+    status: car.status as any,
+    location: 'México', // Default
+    createdAt: new Date(car.created_at),
+    updatedAt: new Date(car.updated_at),
+    publishedAt: new Date(car.created_at),
+    views: 0,
+    featured: car.featured || false
+  };
+}
 
 /**
  * Servicio de inventario de vehículos
@@ -15,78 +50,63 @@ export class InventoryService {
     page: number = 1,
     pageSize: number = 12
   ): Promise<VehicleListResponse> {
-    // Simular delay de API
-    await new Promise(resolve => setTimeout(resolve, 300));
+    // Obtener todos los autos de Supabase
+    const cars = await getCars();
 
-    let filtered = [...mockVehicles];
+    // Convertir Cars a Vehicles
+    let vehicles = cars.map(carToVehicle);
 
     // Filtrar por estado (solo disponibles por defecto)
-    filtered = filtered.filter(v => v.status === 'available');
+    vehicles = vehicles.filter(v => v.status === 'available');
 
     // Filtrar por marca
     if (filters.make) {
-      filtered = filtered.filter(v =>
+      vehicles = vehicles.filter(v =>
         v.make.toLowerCase() === filters.make?.toLowerCase()
       );
     }
 
     // Filtrar por modelo
     if (filters.model) {
-      filtered = filtered.filter(v =>
+      vehicles = vehicles.filter(v =>
         v.model.toLowerCase() === filters.model?.toLowerCase()
       );
     }
 
     // Filtrar por año
     if (filters.year?.min) {
-      filtered = filtered.filter(v => v.year >= filters.year!.min!);
+      vehicles = vehicles.filter(v => v.year >= filters.year!.min!);
     }
     if (filters.year?.max) {
-      filtered = filtered.filter(v => v.year <= filters.year!.max!);
+      vehicles = vehicles.filter(v => v.year <= filters.year!.max!);
     }
 
     // Filtrar por precio
     if (filters.price?.min) {
-      filtered = filtered.filter(v => v.price >= filters.price!.min!);
+      vehicles = vehicles.filter(v => v.price >= filters.price!.min!);
     }
     if (filters.price?.max) {
-      filtered = filtered.filter(v => v.price <= filters.price!.max!);
+      vehicles = vehicles.filter(v => v.price <= filters.price!.max!);
     }
 
-    // Filtrar por transmisión
-    if (filters.transmission) {
-      filtered = filtered.filter(v => v.transmission === filters.transmission);
-    }
-
-    // Filtrar por tipo de combustible
-    if (filters.fuelType) {
-      filtered = filtered.filter(v => v.fuelType === filters.fuelType);
-    }
-
-    // Filtrar por condición
-    if (filters.condition) {
-      filtered = filtered.filter(v => v.condition === filters.condition);
-    }
-
-    // Búsqueda general
+    // Búsqueda general (mejorada)
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(v =>
+      vehicles = vehicles.filter(v =>
         v.title.toLowerCase().includes(searchTerm) ||
         v.make.toLowerCase().includes(searchTerm) ||
         v.model.toLowerCase().includes(searchTerm) ||
-        v.description.toLowerCase().includes(searchTerm) ||
-        v.features.some(f => f.toLowerCase().includes(searchTerm))
+        v.description.toLowerCase().includes(searchTerm)
       );
     }
 
     // Ordenar por fecha de publicación (más recientes primero)
-    filtered.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+    vehicles.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     // Paginación
-    const total = filtered.length;
+    const total = vehicles.length;
     const startIndex = (page - 1) * pageSize;
-    const paginated = filtered.slice(startIndex, startIndex + pageSize);
+    const paginated = vehicles.slice(startIndex, startIndex + pageSize);
 
     return {
       vehicles: paginated,
@@ -97,46 +117,43 @@ export class InventoryService {
   }
 
   /**
-   * Obtiene un vehículo por slug
+   * Obtiene un vehículo por slug (ahora usa ID)
    */
   static async getVehicleBySlug(slug: string): Promise<Vehicle | null> {
-    await new Promise(resolve => setTimeout(resolve, 200));
+    const car = await getCarById(slug);
 
-    const vehicle = mockVehicles.find(v => v.slug === slug);
-
-    if (vehicle) {
-      // Incrementar vistas (simulado)
-      vehicle.views = (vehicle.views || 0) + 1;
+    if (!car) {
+      return null;
     }
 
-    return vehicle || null;
+    return carToVehicle(car);
   }
 
   /**
    * Obtiene un vehículo por ID
    */
   static async getVehicleById(id: string): Promise<Vehicle | null> {
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    return mockVehicles.find(v => v.id === id) || null;
+    const car = await getCarById(id);
+    return car ? carToVehicle(car) : null;
   }
 
   /**
    * Obtiene vehículos destacados
    */
   static async getFeaturedVehicles(limit: number = 6): Promise<Vehicle[]> {
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    return mockVehicles
-      .filter(v => v.featured && v.status === 'available')
-      .slice(0, limit);
+    const cars = await getCars();
+    return cars
+      .filter(car => car.featured && car.status === 'available')
+      .slice(0, limit)
+      .map(carToVehicle);
   }
 
   /**
    * Obtiene marcas únicas
    */
   static async getMakes(): Promise<string[]> {
-    const makes = Array.from(new Set(mockVehicles.map(v => v.make)));
+    const cars = await getCars();
+    const makes = Array.from(new Set(cars.map(car => car.make).filter(Boolean)));
     return makes.sort();
   }
 
@@ -144,10 +161,12 @@ export class InventoryService {
    * Obtiene modelos por marca
    */
   static async getModelsByMake(make: string): Promise<string[]> {
+    const cars = await getCars();
     const models = Array.from(new Set(
-      mockVehicles
-        .filter(v => v.make.toLowerCase() === make.toLowerCase())
-        .map(v => v.model)
+      cars
+        .filter(car => car.make?.toLowerCase() === make.toLowerCase())
+        .map(car => car.model)
+        .filter(Boolean)
     ));
     return models.sort();
   }
@@ -156,7 +175,11 @@ export class InventoryService {
    * Obtiene rangos de precios
    */
   static async getPriceRanges(): Promise<{ min: number; max: number }> {
-    const prices = mockVehicles.map(v => v.price);
+    const cars = await getCars();
+    const prices = cars.map(car => Number(car.price));
+    if (prices.length === 0) {
+      return { min: 100000, max: 500000 };
+    }
     return {
       min: Math.floor(Math.min(...prices) / 10000) * 10000,
       max: Math.ceil(Math.max(...prices) / 10000) * 10000
@@ -167,7 +190,11 @@ export class InventoryService {
    * Obtiene rangos de años
    */
   static async getYearRanges(): Promise<{ min: number; max: number }> {
-    const years = mockVehicles.map(v => v.year);
+    const cars = await getCars();
+    const years = cars.map(car => car.year);
+    if (years.length === 0) {
+      return { min: 2015, max: new Date().getFullYear() };
+    }
     return {
       min: Math.min(...years),
       max: Math.max(...years)
@@ -216,7 +243,7 @@ export class InventoryService {
           model: vehicle.model,
           year: vehicle.year,
           price: vehicle.price,
-          url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/inventory/${vehicle.slug}`
+          url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/inventory/${vehicle.id}`
         },
         timestamp: new Date().toISOString(),
         source: 'rolplace-web'

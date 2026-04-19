@@ -80,22 +80,34 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
           {/* Información */}
           <div className="p-4">
             {/* Título */}
-            <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
               {vehicle.title}
             </h3>
 
+            {/* Marca y Modelo */}
+            <div className="text-sm text-gray-500 mb-2">
+              {vehicle.make} {vehicle.model}
+            </div>
+
             {/* Especificaciones clave */}
-            <div className="flex items-center gap-3 text-sm text-gray-600 mb-3">
-              <span className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mb-3">
+              <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
                 📅 {vehicle.year}
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
                 🚗 {formatMileage(vehicle.mileage)}
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
                 ⚙️ {transmissionLabels[vehicle.transmission]}
               </span>
             </div>
+
+            {/* Descripción corta */}
+            {vehicle.description && (
+              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                {vehicle.description}
+              </p>
+            )}
 
             {/* Precio */}
             <div className="mb-3">
@@ -108,6 +120,13 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
             {vehicle.location && (
               <div className="flex items-center gap-1 text-sm text-gray-500 mb-3">
                 📍 {vehicle.location}
+              </div>
+            )}
+
+            {/* Contador de imágenes */}
+            {vehicle.images && vehicle.images.length > 0 && (
+              <div className="text-xs text-gray-500 mb-2">
+                📷 {vehicle.images.length} {vehicle.images.length === 1 ? 'imagen' : 'imágenes'}
               </div>
             )}
 
