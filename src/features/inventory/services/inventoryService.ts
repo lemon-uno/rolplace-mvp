@@ -153,7 +153,11 @@ export class InventoryService {
    */
   static async getMakes(): Promise<string[]> {
     const cars = await getCars();
-    const makes = Array.from(new Set(cars.map(car => car.make).filter(Boolean)));
+    const makes = Array.from(new Set(
+      cars
+        .map(car => car.make)
+        .filter((make): make is string => make !== null)
+    ));
     return makes.sort();
   }
 
@@ -166,7 +170,7 @@ export class InventoryService {
       cars
         .filter(car => car.make?.toLowerCase() === make.toLowerCase())
         .map(car => car.model)
-        .filter(Boolean)
+        .filter((model): model is string => model !== null)
     ));
     return models.sort();
   }
