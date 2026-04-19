@@ -1,9 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Vehicle } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  Calendar,
+  Gauge,
+  Settings2,
+  Fuel,
+  DoorOpen,
+  Armchair,
+  Search,
+} from 'lucide-react';
 
 export function VehicleDetail() {
   const params = useParams();
@@ -14,12 +27,31 @@ export function VehicleDetail() {
   const [showContactForm, setShowContactForm] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     if (params.slug) {
       loadVehicle(params.slug as string);
     }
   }, [params.slug]);
+
+  // Lightbox keyboard navigation
+  useEffect(() => {
+    if (!lightboxOpen || !vehicle?.images) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowLeft') handlePreviousImage();
+      if (e.key === 'ArrowRight') handleNextImage();
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [lightboxOpen, vehicle?.images, selectedImageIndex]);
 
   // Reset selected image when vehicle changes
   useEffect(() => {
@@ -177,13 +209,22 @@ export function VehicleDetail() {
             <div>
               {vehicle.images && vehicle.images.length > 0 && (
                 <>
-                  {/* Imagen principal con navegación */}
-                  <div className="relative mb-4">
+                  {/* Imagen principal con navegación y zoom */}
+                  <div className="relative mb-4 group">
                     <img
                       src={selectedImage || vehicle.featuredImage || vehicle.images[0]}
                       alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
-                      className="w-full h-96 object-cover rounded-lg"
+                      className="w-full h-96 object-cover rounded-lg cursor-zoom-in"
+                      onClick={() => setLightboxOpen(true)}
                     />
+
+                    {/* Zoom icon overlay */}
+                    <div
+                      className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg cursor-zoom-in"
+                      onClick={() => setLightboxOpen(true)}
+                    >
+                      <ZoomIn className="w-10 h-10 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow-lg" />
+                    </div>
 
                     {/* Contador de imágenes */}
                     <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -195,17 +236,17 @@ export function VehicleDetail() {
                       <>
                         <button
                           onClick={handlePreviousImage}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
                           title="Imagen anterior"
                         >
-                          ←
+                          <ChevronLeft className="w-5 h-5" />
                         </button>
                         <button
                           onClick={handleNextImage}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-colors"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
                           title="Siguiente imagen"
                         >
-                          →
+                          <ChevronRight className="w-5 h-5" />
                         </button>
                       </>
                     )}
@@ -280,31 +321,49 @@ export function VehicleDetail() {
               </div>
 
               {/* Especificaciones */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Año</div>
-                  <div className="font-semibold">{vehicle.year}</div>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-xs text-gray-500">Año</div>
+                    <div className="font-semibold text-gray-900">{vehicle.year}</div>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Kilometraje</div>
-                  <div className="font-semibold">{formatMileage(vehicle.mileage)}</div>
+                <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3">
+                  <Gauge className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-xs text-gray-500">Kilometraje</div>
+                    <div className="font-semibold text-gray-900">{formatMileage(vehicle.mileage)}</div>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Transmisión</div>
-                  <div className="font-semibold">{transmissionLabels[vehicle.transmission]}</div>
+                <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3">
+                  <Settings2 className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-xs text-gray-500">Transmisión</div>
+                    <div className="font-semibold text-gray-900">{transmissionLabels[vehicle.transmission]}</div>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Combustible</div>
-                  <div className="font-semibold">{fuelTypeLabels[vehicle.fuelType]}</div>
+                <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3">
+                  <Fuel className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-xs text-gray-500">Combustible</div>
+                    <div className="font-semibold text-gray-900">{fuelTypeLabels[vehicle.fuelType]}</div>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Puertas</div>
-                  <div className="font-semibold">{vehicle.doors}</div>
+                <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3">
+                  <DoorOpen className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-xs text-gray-500">Puertas</div>
+                    <div className="font-semibold text-gray-900">{vehicle.doors}</div>
+                  </div>
                 </div>
                 {vehicle.seats && (
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="text-sm text-gray-600">Asientos</div>
-                    <div className="font-semibold">{vehicle.seats}</div>
+                  <div className="bg-gray-50 p-3 rounded-lg flex items-center gap-3">
+                    <Armchair className="w-5 h-5 text-gray-400 shrink-0" />
+                    <div>
+                      <div className="text-xs text-gray-500">Asientos</div>
+                      <div className="font-semibold text-gray-900">{vehicle.seats}</div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -429,6 +488,88 @@ export function VehicleDetail() {
           )}
         </div>
       </div>
+
+      {/* Lightbox Modal */}
+      {lightboxOpen && vehicle.images && vehicle.images.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2 transition-colors"
+            title="Cerrar"
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {/* Image counter top-center */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium">
+            {selectedImageIndex + 1} / {vehicle.images.length}
+          </div>
+
+          {/* Main lightbox image */}
+          <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+            <img
+              src={vehicle.images[selectedImageIndex]}
+              alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
+              className="max-w-full max-h-[85vh] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Navigation arrows */}
+            {vehicle.images.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePreviousImage();
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors"
+                  title="Imagen anterior"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNextImage();
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors"
+                  title="Siguiente imagen"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Thumbnail strip at bottom */}
+          <div
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {vehicle.images.map((imageUrl, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedImageIndex(index)}
+                className={`shrink-0 w-16 h-12 rounded overflow-hidden transition-all ${
+                  index === selectedImageIndex
+                    ? 'ring-2 ring-white opacity-100'
+                    : 'opacity-50 hover:opacity-80'
+                }`}
+              >
+                <img
+                  src={imageUrl}
+                  alt={`Miniatura ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
