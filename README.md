@@ -1,8 +1,8 @@
-# Rolplace MVP v1.1 🚗
+# Rolplace MVP v1.2 🚗
 
-Marketplace de autos seminuevos con **autenticación completa**, **panel de inventario** y **backend vinculado con Supabase**. Basado en las funcionalidades del plugin Motors de WordPress.
+Marketplace de autos seminuevos con **autenticación completa**, **panel de inventario**, **sistema de imágenes moderno** y **backend vinculado con Supabase**. Basado en las funcionalidades del plugin Motors de WordPress.
 
-[![GitHub release](https://img.shields.io/badge/version-1.1-blue)](https://github.com/lemon-uno/rolplace-mvp)
+[![GitHub release](https://img.shields.io/badge/version-1.2-blue)](https://github.com/lemon-uno/rolplace-mvp)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Integrated-green)](https://supabase.com/)
@@ -28,15 +28,25 @@ Marketplace de autos seminuevos con **autenticación completa**, **panel de inve
 - **Vista de inventario personal** - Cada usuario ve solo sus autos
 - **Interfaz moderna** - Diseño oscuro con gradientes cyan-to-blue
 
-### 🗄️ Backend con Supabase (NUEVO v1.1)
+### 🗄️ Backend con Supabase
 - **Base de datos real** - Conexión completa con Supabase PostgreSQL
 - **Row Level Security (RLS)** - Políticas de seguridad a nivel de fila
 - **Tablas creadas**:
   - `public.profiles` - Perfiles de usuario con trigger automático
   - `public.cars` - Inventario de autos con índices optimizados
+  - `storage.car-images` - Bucket de imágenes con acceso público
 - **Server Actions** - Mutaciones de datos type-safe
 - **Real-time updates** - Invalidación de caché automática
 - **Type-safe queries** - Interfaces TypeScript generadas
+
+### 📸 Sistema de Imágenes Moderno (NUEVO v1.2)
+- **Upload Drag & Drop** - Arrastra o selecciona múltiples archivos (hasta 20 imágenes)
+- **Supabase Storage** - Bucket público con políticas RLS configuradas
+- **Gestión de imágenes** - Reordenamiento, eliminación, preview en tiempo real
+- **Validaciones** - Máx. 10MB por imagen, formats: JPEG/PNG/WebP/GIF
+- **Galería interactiva** - Navegación con flechas, click en miniaturas, contador de posición
+- **Optimización** - Nombres únicos, subida simultánea, manejo de errores
+- **Array de imágenes** - Base de datos con `text[]` para múltiples URLs por auto
 
 ### 🏠 Página de Inicio
 - **Hero Section** con gradiente azul profesional
@@ -46,7 +56,8 @@ Marketplace de autos seminuevos con **autenticación completa**, **panel de inve
 - **Call-to-Actions** con integración de WhatsApp
 
 ### 🚗 Inventario de Autos
-- **6 vehículos de muestra** (Toyota Corolla, Honda Civic, VW Jetta, Nissan Versa, Mazda 3, Hyundai Tucson)
+- **Datos dinámicos** - Conectado a Supabase, muestra autos reales subidos por usuarios
+- **Búsqueda inteligente** - Encuentra por marca, modelo, título o descripción
 - **Filtros avanzados**:
   - Búsqueda por texto
   - Marca y Modelo
@@ -56,7 +67,8 @@ Marketplace de autos seminuevos con **autenticación completa**, **panel de inve
   - Tipo de Combustible
   - Condición (Nuevo/Seminuevo/Usado)
 - **Paginación** (12 vehículos por página)
-- **Ordenamiento** por precio, año, kilometraje
+- **Tarjetas mejoradas** - Más información: descripción corta, contador de imágenes, badges visuales
+- **Galería completa** - Navegación interactiva entre fotos de cada vehículo
 
 ### 📄 Ficha de Vehículo
 - **Galería de imágenes** con vista principal y miniaturas
@@ -377,17 +389,18 @@ Edita las clases de Tailwind en los componentes:
 className="bg-green-600 text-white"
 ```
 
-## 📊 Métricas del Proyecto v1.1
+## 📊 Métricas del Proyecto v1.2
 
-- **147 archivos** en el repositorio (+26 archivos)
-- **23,450+ líneas de código** (+3,759 líneas)
-- **12 componentes** principales (+6 componentes)
-- **15 páginas** en total (+6 páginas)
-- **Tablas de base de datos**: 2 (profiles, cars)
-- **Server Actions**: 8 (auth + cars)
+- **152 archivos** en el repositorio (+5 archivos)
+- **24,800+ líneas de código** (+1,350 líneas)
+- **15 componentes** principales (+3 componentes)
+- **15 páginas** en total (sin cambios)
+- **Tablas de base de datos**: 2 (profiles, cars) + 1 Storage bucket (car-images)
+- **Server Actions**: 10 (auth + cars + upload)
 - **Autenticación**: ✅ Google OAuth funcional
-- **Backend**: ✅ Supabase PostgreSQL con RLS
-- **Tiempo de desarrollo v1.1**: ~4 horas
+- **Backend**: ✅ Supabase PostgreSQL + Storage con RLS
+- **Sistema de imágenes**: ✅ Upload múltiple con galería interactiva
+- **Tiempo de desarrollo v1.2**: ~6 horas (total acumulado: ~10 horas)
 
 ## 🗺️ Roadmap
 
@@ -401,15 +414,37 @@ className="bg-green-600 text-white"
 - [x] **Diseño moderno** inspirado en Rolplace.com
 - [x] **Server Actions** type-safe
 
+### ✅ v1.2 - Completado (Abril 2026)
+- [x] **Sistema de imágenes moderno** con Supabase Storage
+  - [x] Upload Drag & Drop (hasta 20 imágenes simultáneas)
+  - [x] Bucket `car-images` con políticas RLS
+  - [x] Reordenamiento y eliminación de imágenes
+  - [x] Validaciones (10MB max, formats JPEG/PNG/WebP/GIF)
+- [x] **Galería interactiva** en página de detalle
+  - [x] Navegación con flechas (← →)
+  - [x] Click en miniaturas para ver imagen principal
+  - [x] Contador de posición ("X de Y")
+  - [x] Indicador visual de imagen seleccionada
+- [x] **Inventario dinámico** conectado a Supabase
+  - [x] Muestra autos reales subidos por usuarios
+  - [x] Búsqueda inteligente (encuentra Jeep, etc.)
+  - [x] Filtros funcionando con datos reales
+- [x] **Mejoras de UX**
+  - [x] Tarjetas con más información (descripción, contador de imágenes)
+  - [x] Filtros de precio/alineados correctamente
+  - [x] Arreglo de problemas de deploy en Vercel
+
 ### 🚀 Próximas Versiones
 
-- [ ] **Comparador de vehículos** (v1.2)
-- [ ] **Sistema de favoritos** (v1.2)
-- [ ] **Alertas de nuevos vehículos** (v1.3)
-- [ ] **SEO avanzado** (sitemap, robots.txt, meta tags) (v1.3)
+- [ ] **Comparador de vehículos** (v1.3)
+- [ ] **Sistema de favoritos** (v1.3)
+- [ ] **Alertas de nuevos vehículos** (v1.4)
+- [ ] **SEO avanzado** (sitemap, robots.txt, meta tags) (v1.4)
 - [ ] **Blog** de contenido automotriz (v2.0)
 - [ ] **Integración con APIs** de financieras (v2.0)
 - [ ] **Chat en vivo** integrado (v2.0)
+- [ ] **Panel de analytics** (v2.0)
+- [ ] **Exportación de inventario** a MercadoLibre/Facebook (v2.1)
 - [ ] **Panel de analytics** (v2.0)
 - [ ] **Exportación de inventario** a MercadoLibre/Facebook (v2.1)
 
@@ -421,14 +456,15 @@ MIT License - Copyright © 2026 Lemon Uno
 
 Desarrollado con **SaaS Factory V4** | Agent-First Software Factory
 
-**Versión 1.1** - Abril 2026  
+**Versión 1.2** - Abril 2026  
 **Autenticación**: ✅ Google OAuth Funcionando  
-**Backend**: ✅ Supabase PostgreSQL  
-**Inventario**: ✅ Panel Administrativo  
+**Backend**: ✅ Supabase PostgreSQL + Storage  
+**Inventario**: ✅ Panel Administrativo + Upload de Imágenes  
+**Galería**: ✅ Navegación Interactiva  
 
 ---
 
 **🌐 Demo en Vivo**: https://pr-1-kappa.vercel.app  
 **📦 GitHub**: https://github.com/lemon-uno/rolplace-mvp  
-**🚀 Versión**: v1.1.0  
+**🚀 Versión**: v1.2.0  
 **📅 Última actualización**: Abril 2026
