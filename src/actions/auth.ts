@@ -84,6 +84,8 @@ export async function updateProfile(formData: FormData) {
     .from('profiles')
     .update({
       full_name: formData.get('full_name') as string,
+      phone: formData.get('phone') as string || null,
+      whatsapp: formData.get('whatsapp') as string || null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', user.id)

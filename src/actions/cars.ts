@@ -229,3 +229,23 @@ export async function deleteCar(id: string) {
   revalidatePath('/inventory')
   return { success: true }
 }
+
+export async function getOwnerWhatsApp(carId: string): Promise<string | null> {
+  const supabase = await createClient()
+
+  const { data: car } = await supabase
+    .from('cars')
+    .select('user_id')
+    .eq('id', carId)
+    .single()
+
+  if (!car) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('whatsapp')
+    .eq('id', car.user_id)
+    .single()
+
+  return profile?.whatsapp || null
+}

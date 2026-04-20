@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Vehicle } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
+import { getOwnerWhatsApp } from '@/actions/cars';
 import {
   X,
   ChevronLeft,
@@ -121,23 +122,27 @@ function SimilarVehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(price);
 
+  const transmissionLabel = { automatic: 'Auto', manual: 'Manual', tiptronic: 'Tip' }[vehicle.transmission] || '';
+
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded-lg border border-gray-200 bg-white overflow-hidden hover:shadow-md transition-shadow"
+      className="w-full text-left rounded-lg border border-gray-200 bg-white p-3 hover:shadow-md transition-shadow flex gap-3"
     >
-      {vehicle.images && vehicle.images.length > 0 ? (
-        <img src={vehicle.images[0]} alt={vehicle.title} className="w-full h-32 object-cover" />
-      ) : (
-        <div className="w-full h-32 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">Sin imagen</div>
-      )}
-      <div className="p-3">
-        <h4 className="text-sm font-semibold text-gray-900 truncate">{vehicle.title}</h4>
-        <p className="text-sm font-bold text-blue-600">{formatPrice(vehicle.price)}</p>
-        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-          <span>{vehicle.year}</span>
-          <span>•</span>
-          <span>{vehicle.mileage?.toLocaleString()} km</span>
+      <div className="shrink-0 w-24 h-20 rounded overflow-hidden bg-gray-200">
+        {vehicle.images && vehicle.images.length > 0 ? (
+          <img src={vehicle.images[0]} alt={vehicle.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">Sin img</div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-semibold text-gray-900 truncate">{vehicle.make} {vehicle.model} {vehicle.year}</h4>
+        <p className="text-base font-bold text-blue-600 mt-0.5">{formatPrice(vehicle.price)}</p>
+        <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+          <span className="flex items-center gap-1"><Gauge className="w-3 h-3" />{vehicle.mileage?.toLocaleString()} km</span>
+          <span className="flex items-center gap-1"><Settings2 className="w-3 h-3" />{transmissionLabel}</span>
+          {vehicle.color && <span className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-full bg-gray-400 border border-gray-300" />{vehicle.color}</span>}
         </div>
       </div>
     </button>
@@ -156,6 +161,7 @@ export function VehicleDetail() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeFeatureTab, setActiveFeatureTab] = useState<FeatureTab>('exterior');
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
 
   useEffect(() => {
     if (params.slug) {
@@ -192,6 +198,8 @@ export function VehicleDetail() {
       if (data) {
         const similar = await InventoryService.getSimilarVehicles(data.id, data.make, data.price, 4);
         setSimilarVehicles(similar);
+        const wa = await getOwnerWhatsApp(data.id);
+        setWhatsappNumber(wa);
       }
     } catch (error) {
       console.error('Error cargando vehículo:', error);
@@ -294,6 +302,12 @@ export function VehicleDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: main content (2 cols) */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Title + Price — above gallery */}
+            <div className="flex items-start justify-between gap-4">
+              <h1 className="text-2xl font-bold text-gray-900">{vehicle.title}</h1>
+              <span className="text-2xl font-bold text-blue-600 whitespace-nowrap">{formatPrice(vehicle.price)}</span>
+            </div>
+
             {/* Image Gallery - full width */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
               {totalItems > 0 ? (
@@ -373,22 +387,6 @@ export function VehicleDetail() {
                   <span className="text-gray-500">Sin imágenes</span>
                 </div>
               )}
-            </div>
-
-            {/* Title + Price */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{vehicle.title}</h1>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>{vehicle.location || 'México'}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-3xl font-bold text-blue-600">{formatPrice(vehicle.price)}</span>
-                </div>
-              </div>
             </div>
 
             {/* Specs */}
@@ -535,23 +533,37 @@ export function VehicleDetail() {
           </div>
 
           {/* Right sidebar: Similar vehicles */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Vehículos Similares</h3>
-              {similarVehicles.length > 0 ? (
-                <div className="space-y-4">
-                  {similarVehicles.map(v => (
-                    <SimilarVehicleCard
-                      key={v.id}
-                      vehicle={v}
-                      onClick={() => router.push(`/inventory/${v.id}`)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400">No hay vehículos similares</p>
-              )}
-            </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Vehículos Similares</h3>
+            {similarVehicles.length > 0 ? (
+              <div className="space-y-3">
+                {similarVehicles.slice(0, 3).map(v => (
+                  <SimilarVehicleCard
+                    key={v.id}
+                    vehicle={v}
+                    onClick={() => {
+                      setSelectedImageIndex(0);
+                      router.push(`/inventory/${v.id}`);
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">No hay vehículos similares</p>
+            )}
+
+            {/* WhatsApp Button */}
+            {whatsappNumber && (
+              <a
+                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Me interesa el vehículo ${vehicle.title}. Me podrán contactar para más información.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors mt-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                WhatsApp
+              </a>
+            )}
           </div>
         </div>
       </div>

@@ -54,6 +54,19 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+
+          {/* Configuración Card */}
+          <Link href="/dashboard/settings" className="group">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg p-6 shadow-lg hover:shadow-xl transition-all hover:scale-105">
+              <div className="text-white">
+                <div className="text-4xl mb-4">⚙️</div>
+                <h3 className="text-xl font-bold mb-2">Configuración</h3>
+                <p className="text-amber-100 text-sm">
+                  Datos de contacto y WhatsApp
+                </p>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Welcome Section */}
