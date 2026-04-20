@@ -29,6 +29,8 @@ export interface Vehicle {
   year: number;        // Año
   version?: string;    // Versión (LE, XLE, etc.)
   color: string;
+  motor?: string;     // Motor (3.4L, 2.0L, etc.)
+  invoice?: string;   // Factura (original, refactura)
 
   // Especificaciones
   transmission: VehicleTransmission;

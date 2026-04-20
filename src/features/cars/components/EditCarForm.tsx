@@ -136,6 +136,7 @@ export function EditCarForm({ car }: { car: Car }) {
     price: String(car.price),
     mileage: car.mileage || '',
     invoice: car.invoice || '',
+    motor: car.motor || '',
     owners: car.owners ? String(car.owners) : '',
     description: car.description || '',
     featured: car.featured,
@@ -233,6 +234,7 @@ export function EditCarForm({ car }: { car: Car }) {
     formPayload.append('price', formData.price)
     formPayload.append('mileage', formData.mileage)
     formPayload.append('invoice', formData.invoice)
+    formPayload.append('motor', formData.motor as string)
     formPayload.append('owners', formData.owners)
     formPayload.append('description', formData.description)
     formPayload.append('featured', formData.featured ? 'true' : 'false')
@@ -332,6 +334,13 @@ export function EditCarForm({ car }: { car: Car }) {
                 <option value="refactura">Refactura</option>
               </select>
             </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-300">Motor</label>
+              <input name="motor" type="text" placeholder="Ej: 3.4L, 2.0L, 1.8 Turbo" value={formData.motor as string} onChange={handleInputChange} className={inputClass} />
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-300">Kilometraje</label>
               <input name="mileage" type="text" value={formData.mileage} onChange={handleInputChange} className={inputClass} />

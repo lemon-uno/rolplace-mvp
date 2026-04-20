@@ -76,6 +76,8 @@ function carToVehicle(car: Car): Vehicle {
     year: car.year,
     version: car.version || car.model || '',
     color: car.exterior_color || 'Blanco',
+    motor: car.motor || undefined,
+    invoice: car.invoice || undefined,
     transmission: 'automatic',
     fuelType: 'gasoline',
     mileage: car.mileage ? parseInt(car.mileage.replace(/[^\d]/g, '')) || 0 : 0,

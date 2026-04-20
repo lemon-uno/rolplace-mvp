@@ -19,6 +19,7 @@ export interface Car {
   model: string | null
   version: string | null
   invoice: 'original' | 'refactura' | null
+  motor: string | null
   owners: number | null
   images: string[] | null
   featured: boolean

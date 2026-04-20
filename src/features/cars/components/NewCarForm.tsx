@@ -88,6 +88,7 @@ interface FormData {
   price: string
   mileage: string
   invoice: string
+  motor: string
   owners: string
   description: string
   featured: boolean
@@ -105,6 +106,7 @@ const INITIAL_FORM: FormData = {
   price: '',
   mileage: '',
   invoice: '',
+  motor: '',
   owners: '',
   description: '',
   featured: false,
@@ -260,6 +262,7 @@ export function NewCarForm() {
     formPayload.append('price', formData.price)
     formPayload.append('mileage', formData.mileage)
     formPayload.append('invoice', formData.invoice)
+    formPayload.append('motor', formData.motor as string)
     formPayload.append('owners', formData.owners)
     formPayload.append('description', formData.description)
     formPayload.append('featured', formData.featured ? 'true' : 'false')
@@ -372,6 +375,13 @@ export function NewCarForm() {
                 <option value="refactura">Refactura</option>
               </select>
             </div>
+            <div className="space-y-2">
+              <label htmlFor="motor" className="block text-sm font-medium text-gray-300">Motor</label>
+              <input id="motor" name="motor" type="text" placeholder="Ej: 3.4L, 2.0L, 1.8 Turbo" value={formData.motor} onChange={handleInputChange} className={inputClass} />
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label htmlFor="mileage" className="block text-sm font-medium text-gray-300">Kilometraje</label>
               <input id="mileage" name="mileage" type="text" placeholder="Ej: 35,000 km" value={formData.mileage} onChange={handleInputChange} className={inputClass} />

@@ -19,6 +19,8 @@ import {
   Phone,
   Mail,
   MessageCircle,
+  Wrench,
+  FileText,
 } from 'lucide-react';
 
 type FeatureTab = 'exterior' | 'interior' | 'equipment' | 'safety' | 'entertainment';
@@ -372,6 +374,18 @@ export function VehicleDetail() {
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <Armchair className="w-5 h-5 text-gray-400 shrink-0" />
                     <div><div className="text-xs text-gray-500">Asientos</div><div className="font-semibold text-gray-900">{vehicle.seats}</div></div>
+                  </div>
+                )}
+                {vehicle.motor && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <Wrench className="w-5 h-5 text-gray-400 shrink-0" />
+                    <div><div className="text-xs text-gray-500">Motor</div><div className="font-semibold text-gray-900">{vehicle.motor}</div></div>
+                  </div>
+                )}
+                {vehicle.invoice && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <FileText className="w-5 h-5 text-gray-400 shrink-0" />
+                    <div><div className="text-xs text-gray-500">Factura</div><div className="font-semibold text-gray-900 capitalize">{vehicle.invoice === 'original' ? 'Original' : 'Refactura'}</div></div>
                   </div>
                 )}
               </div>
