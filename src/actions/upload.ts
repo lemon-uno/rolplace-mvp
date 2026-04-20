@@ -4,7 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-const MAX_IMAGES = 20
 
 export interface UploadImageResult {
   success: boolean
@@ -12,10 +11,59 @@ export interface UploadImageResult {
   error?: string
 }
 
+export async function uploadSingleImage(formData: FormData): Promise<UploadImageResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Not authenticated' }
+  }
+
+  const file = formData.get('image') as File | null
+
+  if (!file || file.size === 0) {
+    return { success: false, error: 'Invalid file' }
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return { success: false, error: 'File too large (max 10MB)' }
+  }
+
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    return { success: false, error: 'Invalid file type' }
+  }
+
+  try {
+    const timestamp = Date.now()
+    const randomString = Math.random().toString(36).substring(2, 15)
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${user.id}/${timestamp}-${randomString}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('car-images')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      return { success: false, error: uploadError.message }
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('car-images')
+      .getPublicUrl(fileName)
+
+    return { success: true, url: urlData.publicUrl }
+  } catch (error) {
+    console.error('Upload processing error:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
 /**
- * Upload multiple images to Supabase Storage
- * @param formData - FormData with files under 'images' key
- * @returns Array of results with URLs or errors
+ * Upload multiple images to Supabase Storage (legacy batch method)
  */
 export async function uploadImages(formData: FormData): Promise<UploadImageResult[]> {
   const supabase = await createClient()
@@ -25,47 +73,37 @@ export async function uploadImages(formData: FormData): Promise<UploadImageResul
     throw new Error('Not authenticated')
   }
 
-  // Get files from FormData
   const files = formData.getAll('images') as File[]
 
   if (!files || files.length === 0) {
     throw new Error('No files provided')
   }
 
-  if (files.length > MAX_IMAGES) {
-    throw new Error(`Maximum ${MAX_IMAGES} images allowed`)
-  }
-
   const results: UploadImageResult[] = []
 
   for (const file of files) {
-    // Validate file
     if (!file || file.size === 0) {
       results.push({ success: false, error: 'Invalid file' })
       continue
     }
 
-    // Check file size
     if (file.size > MAX_FILE_SIZE) {
       results.push({ success: false, error: 'File too large (max 10MB)' })
       continue
     }
 
-    // Check MIME type
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       results.push({ success: false, error: 'Invalid file type (only JPEG, PNG, WebP, GIF)' })
       continue
     }
 
     try {
-      // Generate unique filename: userId/timestamp-randomString.ext
       const timestamp = Date.now()
       const randomString = Math.random().toString(36).substring(2, 15)
       const fileExt = file.name.split('.').pop()
       const fileName = `${user.id}/${timestamp}-${randomString}.${fileExt}`
 
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('car-images')
         .upload(fileName, file, {
           cacheControl: '3600',
@@ -78,22 +116,14 @@ export async function uploadImages(formData: FormData): Promise<UploadImageResul
         continue
       }
 
-      // Get public URL
       const { data: urlData } = supabase.storage
         .from('car-images')
         .getPublicUrl(fileName)
 
-      results.push({
-        success: true,
-        url: urlData.publicUrl
-      })
-
+      results.push({ success: true, url: urlData.publicUrl })
     } catch (error) {
       console.error('Upload processing error:', error)
-      results.push({
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      })
+      results.push({ success: false, error: error instanceof Error ? error.message : 'Unknown error' })
     }
   }
 

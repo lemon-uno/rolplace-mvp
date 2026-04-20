@@ -210,6 +210,28 @@ export class InventoryService {
   }
 
   /**
+   * Obtiene vehículos similares (misma marca o rango de precio)
+   */
+  static async getSimilarVehicles(vehicleId: string, make?: string, price?: number, limit: number = 4): Promise<Vehicle[]> {
+    const cars = await getCars();
+    const others = cars.filter(car => car.id !== vehicleId && car.status === 'available');
+    return others
+      .map(car => {
+        let score = 0;
+        if (make && car.make?.toLowerCase() === make.toLowerCase()) score += 2;
+        if (price) {
+          const carPrice = Number(car.price);
+          const diff = Math.abs(carPrice - price) / price;
+          if (diff < 0.2) score += 1;
+        }
+        return { car, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(({ car }) => carToVehicle(car));
+  }
+
+  /**
    * Obtiene marcas únicas
    */
   static async getMakes(): Promise<string[]> {
