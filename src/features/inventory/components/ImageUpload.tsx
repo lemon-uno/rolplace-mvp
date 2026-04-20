@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { uploadSingleImage } from '@/actions/upload'
 import { X, GripVertical } from 'lucide-react'
 
@@ -19,6 +19,15 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [previews, setPreviews] = useState<string[]>(value)
   const [uploading, setUploading] = useState(false)
+
+  // Sync previews when parent value changes (e.g. editing existing car)
+  const prevValueRef = useRef(value)
+  useEffect(() => {
+    if (value !== prevValueRef.current) {
+      prevValueRef.current = value
+      setPreviews(value)
+    }
+  }, [value])
   const [uploadProgress, setUploadProgress] = useState('')
   const [dragActive, setDragActive] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)

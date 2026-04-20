@@ -352,7 +352,7 @@ export function EditCarForm({ car }: { car: Car }) {
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-300">Imágenes del Auto</label>
             <p className="text-xs text-gray-500 mb-4">Arrastra para reordenar. Máx. 20 imágenes.</p>
-            <ImageUploadForm name="images" onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))} />
+            <ImageUploadForm name="images" initialImages={car.images || []} onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))} />
           </div>
 
           <div className="space-y-2">
