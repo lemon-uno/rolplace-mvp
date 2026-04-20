@@ -61,12 +61,12 @@ export async function getCarById(id: string): Promise<Car | null> {
   return data
 }
 
-export async function createCar(formData: FormData) {
+export async function createCar(formData: FormData): Promise<{ success?: boolean; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    return { error: 'No autenticado. Inicia sesión.' }
   }
 
   const { data: profile } = await supabase
@@ -76,7 +76,7 @@ export async function createCar(formData: FormData) {
     .single()
 
   if (!profile) {
-    redirect('/login')
+    return { error: 'Perfil no encontrado. Inicia sesión.' }
   }
 
   // Get images array from FormData
@@ -102,6 +102,9 @@ export async function createCar(formData: FormData) {
     features[field] = formData.get(field) === 'true'
   }
 
+  const invoiceValue = formData.get('invoice') as string
+  const ownersValue = formData.get('owners') as string
+
   const { error } = await supabase
     .from('cars')
     .insert({
@@ -114,8 +117,8 @@ export async function createCar(formData: FormData) {
       make: formData.get('make') as string,
       model: formData.get('model') as string,
       version: formData.get('version') as string,
-      invoice: formData.get('invoice') as 'original' | 'refactura' | null,
-      owners: formData.get('owners') ? parseInt(formData.get('owners') as string) : null,
+      invoice: invoiceValue || null,
+      owners: ownersValue ? parseInt(ownersValue) : null,
       images: images.length > 0 ? images : null,
       featured: formData.get('featured') === 'true',
       exterior_color: formData.get('exterior_color') as string || '',
@@ -124,12 +127,13 @@ export async function createCar(formData: FormData) {
     })
 
   if (error) {
-    redirect('/dashboard/cars/new?error=' + encodeURIComponent(error.message))
+    console.error('Supabase insert error:', error)
+    return { error: error.message }
   }
 
   revalidatePath('/dashboard')
   revalidatePath('/inventory')
-  redirect('/dashboard/cars')
+  return { success: true }
 }
 
 export async function updateCar(id: string, formData: FormData) {

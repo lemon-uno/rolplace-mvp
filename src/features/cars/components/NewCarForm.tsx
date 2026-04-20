@@ -274,11 +274,16 @@ export function NewCarForm() {
     }
 
     try {
-      await createCar(formPayload)
-      router.push('/dashboard/cars')
-      router.refresh()
-    } catch {
-      alert('Error al crear el auto')
+      const result = await createCar(formPayload)
+      if (result?.error) {
+        alert('Error: ' + result.error)
+        setIsSubmitting(false)
+      } else {
+        router.push('/dashboard/cars')
+        router.refresh()
+      }
+    } catch (err) {
+      alert('Error inesperado. Intenta de nuevo.')
       setIsSubmitting(false)
     }
   }

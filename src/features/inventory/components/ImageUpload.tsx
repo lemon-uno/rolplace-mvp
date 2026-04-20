@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import Image from 'next/image'
-import { uploadImages, type UploadImageResult } from '@/actions/upload'
+import { uploadImages } from '@/actions/upload'
 
 interface ImageUploadProps {
   value: string[]
@@ -167,12 +166,11 @@ export function ImageUpload({
               key={index}
               className="relative group aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700"
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={url}
                 alt={`Imagen ${index + 1}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                className="w-full h-full object-cover"
               />
 
               {/* Overlay with controls */}
