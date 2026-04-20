@@ -31,6 +31,7 @@ export interface Vehicle {
   color: string;
   motor?: string;     // Motor (3.4L, 2.0L, etc.)
   invoice?: string;   // Factura (original, refactura)
+  videoUrl?: string;  // YouTube video URL
 
   // Especificaciones
   transmission: VehicleTransmission;

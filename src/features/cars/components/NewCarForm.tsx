@@ -93,6 +93,7 @@ interface FormData {
   description: string
   featured: boolean
   images: string[]
+  video_url: string
   exterior_color: string
   interior_color: string
   [key: string]: string | boolean | string[]
@@ -111,6 +112,7 @@ const INITIAL_FORM: FormData = {
   description: '',
   featured: false,
   images: [],
+  video_url: '',
   exterior_color: '',
   interior_color: '',
   ...INITIAL_BOOLEAN_FIELDS,
@@ -267,6 +269,7 @@ export function NewCarForm() {
     formPayload.append('description', formData.description)
     formPayload.append('featured', formData.featured ? 'true' : 'false')
     formPayload.append('images', JSON.stringify(formData.images))
+    formPayload.append('video_url', formData.video_url as string)
     formPayload.append('exterior_color', formData.exterior_color)
     formPayload.append('interior_color', formData.interior_color)
 
@@ -392,6 +395,12 @@ export function NewCarForm() {
             <label className="block text-sm font-medium text-gray-300">Imágenes del Auto *</label>
             <p className="text-xs text-gray-500 mb-4">Arrastra o haz clic para seleccionar (máx. 20 imágenes, 10MB cada una)</p>
             <ImageUploadForm name="images" onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))} />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="video_url" className="block text-sm font-medium text-gray-300">Video de YouTube</label>
+            <input id="video_url" name="video_url" type="url" placeholder="https://www.youtube.com/watch?v=..." value={formData.video_url} onChange={handleInputChange} className={inputClass} />
+            <p className="text-xs text-gray-500">Pega el enlace de un video de YouTube (opcional)</p>
           </div>
 
           <div className="space-y-2">

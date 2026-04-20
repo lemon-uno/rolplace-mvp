@@ -137,6 +137,7 @@ export function EditCarForm({ car }: { car: Car }) {
     mileage: car.mileage || '',
     invoice: car.invoice || '',
     motor: car.motor || '',
+    video_url: car.video_url || '',
     owners: car.owners ? String(car.owners) : '',
     description: car.description || '',
     featured: car.featured,
@@ -235,6 +236,7 @@ export function EditCarForm({ car }: { car: Car }) {
     formPayload.append('mileage', formData.mileage)
     formPayload.append('invoice', formData.invoice)
     formPayload.append('motor', formData.motor as string)
+    formPayload.append('video_url', formData.video_url as string)
     formPayload.append('owners', formData.owners)
     formPayload.append('description', formData.description)
     formPayload.append('featured', formData.featured ? 'true' : 'false')
@@ -362,6 +364,12 @@ export function EditCarForm({ car }: { car: Car }) {
             <label className="block text-sm font-medium text-gray-300">Imágenes del Auto</label>
             <p className="text-xs text-gray-500 mb-4">Arrastra para reordenar. Máx. 20 imágenes.</p>
             <ImageUploadForm name="images" initialImages={car.images || []} onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))} />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">Video de YouTube</label>
+            <input name="video_url" type="url" placeholder="https://www.youtube.com/watch?v=..." value={formData.video_url as string} onChange={handleInputChange} className={inputClass} />
+            <p className="text-xs text-gray-500">Pega el enlace de un video de YouTube (opcional)</p>
           </div>
 
           <div className="space-y-2">

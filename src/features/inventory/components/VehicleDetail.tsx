@@ -21,7 +21,23 @@ import {
   MessageCircle,
   Wrench,
   FileText,
+  Play,
 } from 'lucide-react';
+
+function getYouTubeId(url: string): string | null {
+  if (!url) return null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
 
 type FeatureTab = 'exterior' | 'interior' | 'equipment' | 'safety' | 'entertainment';
 
@@ -243,14 +259,19 @@ export function VehicleDetail() {
   const formatMileage = (mileage: number) =>
     new Intl.NumberFormat('es-MX').format(mileage) + ' km';
 
+  const youtubeId = vehicle.videoUrl ? getYouTubeId(vehicle.videoUrl) : null;
+  const totalItems = (vehicle.images?.length || 0) + (youtubeId ? 1 : 0);
+  const videoIndex = youtubeId ? (vehicle.images?.length || 0) : -1;
+  const isVideoSelected = selectedImageIndex === videoIndex;
+
   const handlePreviousImage = () => {
-    if (!vehicle?.images || vehicle.images.length === 0) return;
-    setSelectedImageIndex((prev) => prev === 0 ? vehicle.images.length - 1 : prev - 1);
+    if (totalItems === 0) return;
+    setSelectedImageIndex((prev) => prev === 0 ? totalItems - 1 : prev - 1);
   };
 
   const handleNextImage = () => {
-    if (!vehicle?.images || vehicle.images.length === 0) return;
-    setSelectedImageIndex((prev) => prev === vehicle.images.length - 1 ? 0 : prev + 1);
+    if (totalItems === 0) return;
+    setSelectedImageIndex((prev) => prev === totalItems - 1 ? 0 : prev + 1);
   };
 
   // Get features for current tab
@@ -275,26 +296,40 @@ export function VehicleDetail() {
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery - full width */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-              {vehicle.images && vehicle.images.length > 0 ? (
+              {totalItems > 0 ? (
                 <div>
-                  {/* Main image */}
+                  {/* Main display */}
                   <div className="relative group">
-                    <img
-                      src={vehicle.images[selectedImageIndex]}
-                      alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
-                      className="w-full h-[400px] object-cover cursor-zoom-in"
-                      onClick={() => setLightboxOpen(true)}
-                    />
-                    <div
-                      className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors cursor-zoom-in"
-                      onClick={() => setLightboxOpen(true)}
-                    >
-                      <ZoomIn className="w-10 h-10 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow-lg" />
-                    </div>
+                    {isVideoSelected && youtubeId ? (
+                      <div className="w-full h-[400px] bg-black flex items-center justify-center">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+                          title="Video del vehículo"
+                          className="w-full h-full"
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : vehicle.images && vehicle.images.length > 0 ? (
+                      <>
+                        <img
+                          src={vehicle.images[selectedImageIndex]}
+                          alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
+                          className="w-full h-[400px] object-cover cursor-zoom-in"
+                          onClick={() => setLightboxOpen(true)}
+                        />
+                        <div
+                          className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors cursor-zoom-in"
+                          onClick={() => setLightboxOpen(true)}
+                        >
+                          <ZoomIn className="w-10 h-10 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow-lg" />
+                        </div>
+                      </>
+                    ) : null}
                     <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {selectedImageIndex + 1} / {vehicle.images.length}
+                      {selectedImageIndex + 1} / {totalItems}
                     </div>
-                    {vehicle.images.length > 1 && (
+                    {totalItems > 1 && (
                       <>
                         <button onClick={handlePreviousImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors">
                           <ChevronLeft className="w-5 h-5" />
@@ -307,7 +342,7 @@ export function VehicleDetail() {
                   </div>
                   {/* Thumbnails */}
                   <div className="flex gap-2 p-3 overflow-x-auto">
-                    {vehicle.images.map((imageUrl, index) => (
+                    {vehicle.images?.map((imageUrl, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedImageIndex(index)}
@@ -318,6 +353,19 @@ export function VehicleDetail() {
                         <img src={imageUrl} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
                       </button>
                     ))}
+                    {youtubeId && (
+                      <button
+                        onClick={() => setSelectedImageIndex(videoIndex)}
+                        className={`shrink-0 w-20 h-14 rounded overflow-hidden transition-all relative ${
+                          videoIndex === selectedImageIndex ? 'ring-2 ring-blue-500' : 'opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <img src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`} alt="Video" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <Play className="w-5 h-5 text-white fill-white" />
+                        </div>
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -509,22 +557,34 @@ export function VehicleDetail() {
       </div>
 
       {/* Lightbox Modal */}
-      {lightboxOpen && vehicle.images && vehicle.images.length > 0 && (
+      {lightboxOpen && totalItems > 0 && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setLightboxOpen(false)}>
           <button onClick={() => setLightboxOpen(false)} className="absolute top-4 right-4 z-10 text-white/80 hover:text-white p-2">
             <X className="w-8 h-8" />
           </button>
           <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white/70 text-sm font-medium">
-            {selectedImageIndex + 1} / {vehicle.images.length}
+            {selectedImageIndex + 1} / {totalItems}
           </div>
           <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
-            <img
-              src={vehicle.images[selectedImageIndex]}
-              alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
-              className="max-w-full max-h-[85vh] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-            {vehicle.images.length > 1 && (
+            {isVideoSelected && youtubeId ? (
+              <div className="w-[80vw] max-w-[960px] aspect-video" onClick={(e) => e.stopPropagation()}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+                  title="Video del vehículo"
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <img
+                src={vehicle.images?.[selectedImageIndex] || ''}
+                alt={`${vehicle.title} - Imagen ${selectedImageIndex + 1}`}
+                className="max-w-full max-h-[85vh] object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+            {totalItems > 1 && (
               <>
                 <button onClick={(e) => { e.stopPropagation(); handlePreviousImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full">
                   <ChevronLeft className="w-6 h-6" />
@@ -536,7 +596,7 @@ export function VehicleDetail() {
             )}
           </div>
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2" onClick={(e) => e.stopPropagation()}>
-            {vehicle.images.map((imageUrl, index) => (
+            {vehicle.images?.map((imageUrl, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImageIndex(index)}
@@ -547,6 +607,19 @@ export function VehicleDetail() {
                 <img src={imageUrl} alt={`Miniatura ${index + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
+            {youtubeId && (
+              <button
+                onClick={() => setSelectedImageIndex(videoIndex)}
+                className={`shrink-0 w-16 h-12 rounded overflow-hidden transition-all relative ${
+                  videoIndex === selectedImageIndex ? 'ring-2 ring-white opacity-100' : 'opacity-50 hover:opacity-80'
+                }`}
+              >
+                <img src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`} alt="Video" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <Play className="w-4 h-4 text-white fill-white" />
+                </div>
+              </button>
+            )}
           </div>
         </div>
       )}

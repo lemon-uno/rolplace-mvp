@@ -84,6 +84,7 @@ export interface Car {
   mp3_player: boolean
   sd_card: boolean
   usb_port: boolean
+  video_url: string | null
 }
 
 export interface Database {
