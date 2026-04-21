@@ -9,6 +9,7 @@ import {
   Hr,
   Row,
   Column,
+  Img,
 } from '@react-email/components';
 
 interface TomaAutoEmailProps {
@@ -19,14 +20,16 @@ interface TomaAutoEmailProps {
   tradeInMake: string;
   tradeInModel: string;
   tradeInYear: string;
-  tradeInVersion: string;
-  tradeInColor: string;
+  tradeInTransmission: string;
   tradeInMileage: string;
+  tradeInExteriorColor: string;
+  tradeInInteriorColor: string;
   paintCondition: string;
   interiorCondition: string;
   engineCondition: string;
   transmissionCondition: string;
   additionalNotes: string;
+  photoUrls: string[];
 }
 
 export default function TomaAutoEmail({
@@ -37,14 +40,16 @@ export default function TomaAutoEmail({
   tradeInMake = '',
   tradeInModel = '',
   tradeInYear = '',
-  tradeInVersion = '',
-  tradeInColor = '',
+  tradeInTransmission = '',
   tradeInMileage = '',
+  tradeInExteriorColor = '',
+  tradeInInteriorColor = '',
   paintCondition = '',
   interiorCondition = '',
   engineCondition = '',
   transmissionCondition = '',
   additionalNotes = '',
+  photoUrls = [],
 }: TomaAutoEmailProps) {
   return (
     <Html>
@@ -65,75 +70,45 @@ export default function TomaAutoEmail({
           <Section style={section}>
             <Text style={sectionTitle}>Auto que ofrecen a cuenta</Text>
             <Hr style={sectionDivider} />
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Marca</Text></Column>
-              <Column style={valueCol}><Text style={value}>{tradeInMake || '—'}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Modelo</Text></Column>
-              <Column style={valueCol}><Text style={value}>{tradeInModel || '—'}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Año</Text></Column>
-              <Column style={valueCol}><Text style={value}>{tradeInYear || '—'}</Text></Column>
-            </Row>
-            {tradeInVersion && (
-              <Row style={infoRow}>
-                <Column style={labelCol}><Text style={label}>Versión</Text></Column>
-                <Column style={valueCol}><Text style={value}>{tradeInVersion}</Text></Column>
-              </Row>
-            )}
-            {tradeInColor && (
-              <Row style={infoRow}>
-                <Column style={labelCol}><Text style={label}>Color</Text></Column>
-                <Column style={valueCol}><Text style={value}>{tradeInColor}</Text></Column>
-              </Row>
-            )}
-            {tradeInMileage && (
-              <Row style={infoRow}>
-                <Column style={labelCol}><Text style={label}>Kilometraje</Text></Column>
-                <Column style={valueCol}><Text style={value}>{tradeInMileage} km</Text></Column>
-              </Row>
-            )}
+            <InfoRow label="Marca" value={tradeInMake} />
+            <InfoRow label="Modelo" value={tradeInModel} />
+            <InfoRow label="Año" value={tradeInYear} />
+            {tradeInTransmission && <InfoRow label="Transmisión" value={tradeInTransmission} />}
+            {tradeInMileage && <InfoRow label="Kilometraje" value={`${tradeInMileage} km`} />}
+            {tradeInExteriorColor && <InfoRow label="Color Exterior" value={tradeInExteriorColor} />}
+            {tradeInInteriorColor && <InfoRow label="Color Interior" value={tradeInInteriorColor} />}
           </Section>
 
           <Section style={section}>
             <Text style={sectionTitle}>Estado del vehículo</Text>
             <Hr style={sectionDivider} />
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Pintura</Text></Column>
-              <Column style={valueCol}><Text style={value}>{paintCondition || '—'}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Interiores</Text></Column>
-              <Column style={valueCol}><Text style={value}>{interiorCondition || '—'}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Motor</Text></Column>
-              <Column style={valueCol}><Text style={value}>{engineCondition || '—'}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Transmisión</Text></Column>
-              <Column style={valueCol}><Text style={value}>{transmissionCondition || '—'}</Text></Column>
-            </Row>
+            <InfoRow label="Pintura" value={paintCondition} />
+            <InfoRow label="Interiores" value={interiorCondition} />
+            <InfoRow label="Motor" value={engineCondition} />
+            <InfoRow label="Transmisión" value={transmissionCondition} />
           </Section>
 
           <Section style={section}>
             <Text style={sectionTitle}>Datos de contacto</Text>
             <Hr style={sectionDivider} />
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Nombre</Text></Column>
-              <Column style={valueCol}><Text style={value}>{contactName}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Teléfono</Text></Column>
-              <Column style={valueCol}><Text style={value}>{contactPhone || '—'}</Text></Column>
-            </Row>
-            <Row style={infoRow}>
-              <Column style={labelCol}><Text style={label}>Email</Text></Column>
-              <Column style={valueCol}><Text style={value}>{contactEmail || '—'}</Text></Column>
-            </Row>
+            <InfoRow label="Nombre" value={contactName} />
+            <InfoRow label="Teléfono" value={contactPhone} />
+            <InfoRow label="Email" value={contactEmail} />
           </Section>
+
+          {photoUrls.length > 0 && (
+            <Section style={section}>
+              <Text style={sectionTitle}>Fotos del vehículo ({photoUrls.length})</Text>
+              <Hr style={sectionDivider} />
+              {photoUrls.map((url, i) => (
+                <Row key={i} style={{ marginBottom: '8px' }}>
+                  <Column>
+                    <Img src={url} alt={`Foto ${i + 1}`} style={photoImg} />
+                  </Column>
+                </Row>
+              ))}
+            </Section>
+          )}
 
           {additionalNotes && (
             <Section style={section}>
@@ -151,6 +126,15 @@ export default function TomaAutoEmail({
         </Container>
       </Body>
     </Html>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <Row style={infoRow}>
+      <Column style={labelCol}><Text style={labelStyle}>{label}</Text></Column>
+      <Column style={valueCol}><Text style={valueStyle}>{value || '—'}</Text></Column>
+    </Row>
   );
 }
 
@@ -234,16 +218,22 @@ const valueCol: React.CSSProperties = {
   verticalAlign: 'top' as const,
 };
 
-const label: React.CSSProperties = {
+const labelStyle: React.CSSProperties = {
   color: '#71717a',
   fontSize: '13px',
   margin: 0,
 };
 
-const value: React.CSSProperties = {
+const valueStyle: React.CSSProperties = {
   color: '#f4f4f5',
   fontSize: '13px',
   margin: 0,
+};
+
+const photoImg: React.CSSProperties = {
+  maxWidth: '100%',
+  borderRadius: '8px',
+  marginBottom: '8px',
 };
 
 const notes: React.CSSProperties = {
