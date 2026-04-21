@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Vehicle } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { getOwnerWhatsApp } from '@/actions/cars';
+import { TomaAutoForm } from './TomaAutoForm';
 import {
   X,
   ChevronLeft,
@@ -23,6 +24,7 @@ import {
   Wrench,
   FileText,
   Play,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 function getYouTubeId(url: string): string | null {
@@ -162,6 +164,7 @@ export function VehicleDetail() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeFeatureTab, setActiveFeatureTab] = useState<FeatureTab>('exterior');
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [showTomaAuto, setShowTomaAuto] = useState(false);
 
   useEffect(() => {
     if (params.slug) {
@@ -564,9 +567,28 @@ export function VehicleDetail() {
                 WhatsApp
               </a>
             )}
+
+            {/* Toma de Auto Button */}
+            <button
+              onClick={() => setShowTomaAuto(true)}
+              className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-300 text-[#1b2064] font-semibold rounded-lg hover:bg-gray-50 transition-colors mt-2"
+            >
+              <ArrowLeftRight className="w-5 h-5 text-[#215add]" />
+              Toma de auto
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Toma de Auto Modal */}
+      {vehicle && (
+        <TomaAutoForm
+          vehicleId={vehicle.id}
+          vehicleTitle={vehicle.title}
+          open={showTomaAuto}
+          onClose={() => setShowTomaAuto(false)}
+        />
+      )}
 
       {/* Lightbox Modal */}
       {lightboxOpen && totalItems > 0 && (

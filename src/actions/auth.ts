@@ -3,6 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/features/email/services/emailService'
+import WelcomeEmail from '@/features/email/templates/WelcomeEmail'
+import React from 'react'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -22,14 +25,29 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
+  const email = formData.get('email') as string
 
-  const { error } = await supabase.auth.signUp({
-    email: formData.get('email') as string,
+  const { data, error } = await supabase.auth.signUp({
+    email,
     password: formData.get('password') as string,
   })
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Send welcome email (fire-and-forget, don't block signup flow)
+  if (data.user) {
+    sendEmail({
+      to: email,
+      subject: 'Bienvenido a Rolplace!',
+      react: React.createElement(WelcomeEmail, {
+        userName: email.split('@')[0],
+        appName: 'Rolplace',
+        loginUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
+      }),
+      userId: data.user.id,
+    }).catch(() => {})
   }
 
   revalidatePath('/', 'layout')
