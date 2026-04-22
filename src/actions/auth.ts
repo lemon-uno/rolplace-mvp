@@ -98,12 +98,19 @@ export async function updateProfile(formData: FormData) {
     return { error: 'Not authenticated' }
   }
 
+  const tasaRaw = formData.get('tasa_interes_anual') as string
+  const plazoRaw = formData.get('plazo_credito_meses') as string
+  const engancheRaw = formData.get('enganche_porcentaje') as string
+
   const { error } = await supabase
     .from('profiles')
     .update({
       full_name: formData.get('full_name') as string,
       phone: formData.get('phone') as string || null,
       whatsapp: formData.get('whatsapp') as string || null,
+      tasa_interes_anual: tasaRaw ? parseFloat(tasaRaw) : null,
+      plazo_credito_meses: plazoRaw ? parseInt(plazoRaw, 10) : null,
+      enganche_porcentaje: engancheRaw ? parseFloat(engancheRaw) : null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', user.id)

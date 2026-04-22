@@ -5,7 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { Vehicle } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { getOwnerWhatsApp } from '@/actions/cars';
+import { getOwnerFinancingSettings } from '@/actions/financing';
 import { TomaAutoForm } from './TomaAutoForm';
+import { FinancingCalculator } from './FinancingCalculator';
 import {
   X,
   ChevronLeft,
@@ -164,6 +166,11 @@ export function VehicleDetail() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeFeatureTab, setActiveFeatureTab] = useState<FeatureTab>('exterior');
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [financingDefaults, setFinancingDefaults] = useState<{
+    tasaInteresAnual: number | null;
+    plazoCreditoMeses: number | null;
+    enganchePorcentaje: number | null;
+  } | null>(null);
   const [showTomaAuto, setShowTomaAuto] = useState(false);
 
   useEffect(() => {
@@ -203,6 +210,8 @@ export function VehicleDetail() {
         setSimilarVehicles(similar);
         const wa = await getOwnerWhatsApp(data.id);
         setWhatsappNumber(wa);
+        const fin = await getOwnerFinancingSettings(data.id);
+        setFinancingDefaults(fin);
       }
     } catch (error) {
       console.error('Error cargando vehículo:', error);
@@ -576,6 +585,9 @@ export function VehicleDetail() {
               <ArrowLeftRight className="w-5 h-5 text-[#215add]" />
               Toma de auto
             </button>
+
+            {/* Financing Calculator */}
+            <FinancingCalculator price={vehicle.price} defaults={financingDefaults} />
           </div>
         </div>
       </div>

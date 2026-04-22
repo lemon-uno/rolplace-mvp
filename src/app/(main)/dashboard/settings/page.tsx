@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { SettingsForm } from '@/features/auth/components/SettingsForm'
+import { CalculatorSettingsForm } from '@/features/auth/components/CalculatorSettingsForm'
 import Link from 'next/link'
+import { SettingsTabs } from './SettingsTabs'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -35,12 +37,26 @@ export default async function SettingsPage() {
       <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Configuración</h1>
-          <p className="mt-2 text-gray-400">Información de contacto del negocio</p>
+          <p className="mt-2 text-gray-400">Administra tu cuenta y preferencias</p>
         </div>
 
-        <div className="rounded-lg border border-gray-800 bg-gray-900/50 backdrop-blur p-8">
-          <SettingsForm profile={profile || { full_name: null, email: '', phone: null, whatsapp: null }} userEmail={user.email || ''} />
-        </div>
+        <SettingsTabs
+          profileTab={
+            <SettingsForm
+              profile={profile || { full_name: null, email: '', phone: null, whatsapp: null }}
+              userEmail={user.email || ''}
+            />
+          }
+          calculatorTab={
+            <CalculatorSettingsForm
+              settings={{
+                tasa_interes_anual: profile?.tasa_interes_anual ?? null,
+                plazo_credito_meses: profile?.plazo_credito_meses ?? null,
+                enganche_porcentaje: profile?.enganche_porcentaje ?? null,
+              }}
+            />
+          }
+        />
       </main>
     </div>
   )
