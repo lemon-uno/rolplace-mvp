@@ -48,13 +48,13 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
   const hasActiveFilters = Object.keys(filters).length > 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+    <div className="rounded-lg shadow-md p-6 sticky top-4" style={{ backgroundColor: '#35475a' }}>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
+        <h2 className="text-lg font-bold text-white">Filtros</h2>
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="text-sm text-cyan-400 hover:text-cyan-300 font-medium"
           >
             Limpiar
           </button>
@@ -64,7 +64,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
       <div className="space-y-4">
         {/* Búsqueda */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             🔍 Buscar
           </label>
           <input
@@ -72,19 +72,19 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
             placeholder="Marca, modelo, características..."
             value={filters.search || ''}
             onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
         </div>
 
         {/* Marca */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Marca
           </label>
           <select
             value={filters.make || ''}
             onChange={(e) => handleFilterChange('make', e.target.value || undefined)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">Todas las marcas</option>
             {makes.map(make => (
@@ -98,7 +98,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
         {/* Modelo (solo si hay marca seleccionada) */}
         {filters.make && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-200 mb-1">
               Modelo
             </label>
             <input
@@ -106,14 +106,14 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               placeholder="Ej: Corolla, Civic..."
               value={filters.model || ''}
               onChange={(e) => handleFilterChange('model', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
         )}
 
         {/* Año */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Año
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -124,7 +124,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               max={2026}
               value={filters.year?.min || ''}
               onChange={(e) => handleYearChange('min', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
             <input
               type="number"
@@ -133,14 +133,14 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               max={2026}
               value={filters.year?.max || ''}
               onChange={(e) => handleYearChange('max', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
         </div>
 
         {/* Precio */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Precio (MXN)
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -151,7 +151,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               min={0}
               value={filters.price?.min || ''}
               onChange={(e) => handlePriceChange('min', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
             <input
               type="number"
@@ -160,20 +160,20 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
               min={0}
               value={filters.price?.max || ''}
               onChange={(e) => handlePriceChange('max', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
         </div>
 
         {/* Transmisión */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Transmisión
           </label>
           <select
             value={filters.transmission || ''}
             onChange={(e) => handleFilterChange('transmission', e.target.value as VehicleTransmission || undefined)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">Todas</option>
             <option value="automatic">Automática</option>
@@ -184,13 +184,13 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
 
         {/* Tipo de combustible */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Combustible
           </label>
           <select
             value={filters.fuelType || ''}
             onChange={(e) => handleFilterChange('fuelType', e.target.value as VehicleFuelType || undefined)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">Todos</option>
             <option value="gasoline">Gasolina</option>
@@ -202,13 +202,13 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
 
         {/* Condición */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Condición
           </label>
           <select
             value={filters.condition || ''}
             onChange={(e) => handleFilterChange('condition', e.target.value as VehicleCondition || undefined)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">Todas</option>
             <option value="new">Nuevo</option>
@@ -219,13 +219,13 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
 
         {/* Tipo de vehículo */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-200 mb-1">
             Tipo de vehículo
           </label>
           <select
             value={filters.vehicleType || ''}
             onChange={(e) => handleFilterChange('vehicleType', e.target.value as VehicleType || undefined)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             <option value="">Todos</option>
             <option value="sedan">Sedán</option>
