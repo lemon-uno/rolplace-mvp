@@ -24,7 +24,7 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
 
   return (
     <Link href={`/inventory/${vehicle.slug}`} className="block group">
-      <div className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+      <div className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#69eac9]">
         {/* Imagen */}
         <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           {vehicle.featuredImage || (vehicle.images && vehicle.images.length > 0) ? (
