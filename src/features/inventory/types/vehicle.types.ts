@@ -78,6 +78,7 @@ export interface VehicleFilters {
   fuelType?: VehicleFuelType;
   condition?: VehicleCondition;
   vehicleType?: VehicleType;
+  mileage?: { min?: number; max?: number };
   search?: string;     // Búsqueda general
 }
 

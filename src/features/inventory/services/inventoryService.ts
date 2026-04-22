@@ -174,6 +174,14 @@ export class InventoryService {
       vehicles = vehicles.filter(v => v.vehicleType === filters.vehicleType);
     }
 
+    // Filtrar por kilometraje
+    if (filters.mileage?.min) {
+      vehicles = vehicles.filter(v => v.mileage >= filters.mileage!.min!);
+    }
+    if (filters.mileage?.max) {
+      vehicles = vehicles.filter(v => v.mileage <= filters.mileage!.max!);
+    }
+
     // Búsqueda general (mejorada)
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
