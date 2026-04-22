@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Vehicle } from '../types/vehicle.types';
-import { Gauge, Settings2 } from 'lucide-react';
+import { Gauge } from 'lucide-react';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -63,7 +63,9 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
                 {formatMileage(vehicle.mileage)}
               </span>
               <span className="flex items-center gap-1">
-                <Settings2 className="w-3.5 h-3.5" style={{ color: '#5E5E5E' }} />
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5E5E5E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 6v12M12 6v12M19 6v12M5 12h14M5 6h7M12 6h7M5 18h7M12 18h7" />
+                </svg>
                 {transmissionLabel[vehicle.transmission]}
               </span>
             </div>
