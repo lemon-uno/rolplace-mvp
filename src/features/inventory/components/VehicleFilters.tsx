@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleCondition } from '../types/vehicle.types';
+import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleCondition, VehicleType } from '../types/vehicle.types';
 
 interface VehicleFiltersProps {
   makes: string[];
@@ -178,7 +178,7 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
             <option value="">Todas</option>
             <option value="automatic">Automática</option>
             <option value="manual">Manual</option>
-            <option value="tiptronic">Tiptronic</option>
+            <option value="cvt">CVT</option>
           </select>
         </div>
 
@@ -213,7 +213,32 @@ export function VehicleFilters({ makes, onFiltersChange, loading = false }: Vehi
             <option value="">Todas</option>
             <option value="new">Nuevo</option>
             <option value="semi-new">Seminuevo</option>
-            <option value="used">Usado</option>
+            <option value="certified">Certificado</option>
+          </select>
+        </div>
+
+        {/* Tipo de vehículo */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Tipo de vehículo
+          </label>
+          <select
+            value={filters.vehicleType || ''}
+            onChange={(e) => handleFilterChange('vehicleType', e.target.value as VehicleType || undefined)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Todos</option>
+            <option value="sedan">Sedán</option>
+            <option value="suv">SUV</option>
+            <option value="compacto">Compacto</option>
+            <option value="convertible">Convertible</option>
+            <option value="hatchback">Hatchback</option>
+            <option value="minivan">Minivan</option>
+            <option value="pickup">Pickup</option>
+            <option value="station_wagon">Station Wagon</option>
+            <option value="van">Van</option>
+            <option value="deportivo">Deportivo</option>
+            <option value="todo_terreno">Todo Terreno</option>
           </select>
         </div>
       </div>

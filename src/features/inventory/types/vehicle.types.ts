@@ -3,11 +3,13 @@
  * Basado en el schema del plugin Motors de WordPress
  */
 
-export type VehicleCondition = 'new' | 'used' | 'semi-new';
+export type VehicleCondition = 'new' | 'semi-new' | 'certified';
 
-export type VehicleTransmission = 'manual' | 'automatic' | 'tiptronic';
+export type VehicleTransmission = 'manual' | 'automatic' | 'cvt';
 
 export type VehicleFuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid';
+
+export type VehicleType = 'sedan' | 'suv' | 'compacto' | 'convertible' | 'hatchback' | 'minivan' | 'pickup' | 'station_wagon' | 'van' | 'deportivo' | 'todo_terreno';
 
 export type VehicleStatus = 'available' | 'sold' | 'reserved' | 'pending';
 
@@ -36,6 +38,7 @@ export interface Vehicle {
   // Especificaciones
   transmission: VehicleTransmission;
   fuelType: VehicleFuelType;
+  vehicleType: VehicleType;
   mileage: number;     // Kilometraje
   doors: number;       // Número de puertas
   seats?: number;      // Número de asientos
@@ -74,6 +77,7 @@ export interface VehicleFilters {
   transmission?: VehicleTransmission;
   fuelType?: VehicleFuelType;
   condition?: VehicleCondition;
+  vehicleType?: VehicleType;
   search?: string;     // Búsqueda general
 }
 

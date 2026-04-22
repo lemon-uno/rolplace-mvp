@@ -79,8 +79,8 @@ function carToVehicle(car: Car): Vehicle {
     motor: car.motor || undefined,
     invoice: car.invoice || undefined,
     videoUrl: car.video_url || undefined,
-    transmission: 'automatic',
-    fuelType: 'gasoline',
+    transmission: (car.transmission as any) || 'automatic',
+    fuelType: (car.fuel_type as any) || 'gasoline',
     mileage: car.mileage ? parseInt(car.mileage.replace(/[^\d]/g, '')) || 0 : 0,
     doors: 4,
     seats: 5,
@@ -89,7 +89,8 @@ function carToVehicle(car: Car): Vehicle {
     features,
     images: car.images || [],
     featuredImage: car.images && car.images.length > 0 ? car.images[0] : undefined,
-    condition: 'used',
+    condition: (car.condition as any) || 'semi-new',
+    vehicleType: (car.vehicle_type as any) || 'sedan',
     status: car.status as any,
     location: 'México',
     createdAt: new Date(car.created_at),
@@ -151,6 +152,26 @@ export class InventoryService {
     }
     if (filters.price?.max) {
       vehicles = vehicles.filter(v => v.price <= filters.price!.max!);
+    }
+
+    // Filtrar por transmisión
+    if (filters.transmission) {
+      vehicles = vehicles.filter(v => v.transmission === filters.transmission);
+    }
+
+    // Filtrar por combustible
+    if (filters.fuelType) {
+      vehicles = vehicles.filter(v => v.fuelType === filters.fuelType);
+    }
+
+    // Filtrar por condición
+    if (filters.condition) {
+      vehicles = vehicles.filter(v => v.condition === filters.condition);
+    }
+
+    // Filtrar por tipo de vehículo
+    if (filters.vehicleType) {
+      vehicles = vehicles.filter(v => v.vehicleType === filters.vehicleType);
     }
 
     // Búsqueda general (mejorada)

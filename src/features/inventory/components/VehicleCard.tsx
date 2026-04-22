@@ -22,10 +22,10 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
     return new Intl.NumberFormat('es-MX').format(mileage) + ' km';
   };
 
-  const transmissionLabels = {
+  const transmissionLabels: Record<string, string> = {
     'automatic': 'Automático',
     'manual': 'Manual',
-    'tiptronic': 'Tiptronic'
+    'cvt': 'CVT'
   };
 
   return (

@@ -125,6 +125,10 @@ export async function createCar(formData: FormData): Promise<{ success?: boolean
       featured: formData.get('featured') === 'true',
       exterior_color: formData.get('exterior_color') as string || '',
       interior_color: formData.get('interior_color') as string || '',
+      transmission: (formData.get('transmission') as string) || 'automatic',
+      fuel_type: (formData.get('fuel_type') as string) || 'gasoline',
+      condition: (formData.get('condition') as string) || 'semi-new',
+      vehicle_type: (formData.get('vehicle_type') as string) || null,
       ...features,
     })
 
@@ -191,6 +195,10 @@ export async function updateCar(id: string, formData: FormData): Promise<{ succe
       status: formData.get('status') as 'available' | 'sold' | 'reserved',
       exterior_color: formData.get('exterior_color') as string || '',
       interior_color: formData.get('interior_color') as string || '',
+      transmission: (formData.get('transmission') as string) || 'automatic',
+      fuel_type: (formData.get('fuel_type') as string) || 'gasoline',
+      condition: (formData.get('condition') as string) || 'semi-new',
+      vehicle_type: (formData.get('vehicle_type') as string) || null,
       ...features,
     })
     .eq('id', id)

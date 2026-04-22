@@ -126,7 +126,7 @@ function SimilarVehicleCard({ vehicle, onClick }: { vehicle: Vehicle; onClick: (
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(price);
 
-  const transmissionLabel = { automatic: 'Auto', manual: 'Manual', tiptronic: 'Tip' }[vehicle.transmission] || '';
+  const transmissionLabel = { automatic: 'Auto', manual: 'Manual', cvt: 'CVT' }[vehicle.transmission] || '';
 
   return (
     <button
@@ -415,7 +415,7 @@ export function VehicleDetail() {
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                   <Settings2 className="w-5 h-5 text-gray-400 shrink-0" />
                   <div><div className="text-xs text-gray-500">Transmisión</div><div className="font-semibold text-gray-900">
-                    {{ automatic: 'Automática', manual: 'Manual', tiptronic: 'Tiptronic' }[vehicle.transmission]}
+                    {{ automatic: 'Automática', manual: 'Manual', cvt: 'CVT' }[vehicle.transmission]}
                   </div></div>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

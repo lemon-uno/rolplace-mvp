@@ -87,6 +87,10 @@ export interface Car {
   sd_card: boolean
   usb_port: boolean
   video_url: string | null
+  transmission: 'manual' | 'automatic' | 'cvt'
+  fuel_type: 'gasoline' | 'diesel' | 'electric' | 'hybrid'
+  condition: 'new' | 'semi-new' | 'certified'
+  vehicle_type: string | null
 }
 
 export interface Database {

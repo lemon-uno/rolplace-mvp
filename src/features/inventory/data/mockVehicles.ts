@@ -44,7 +44,8 @@ export const mockVehicles: Vehicle[] = [
     updatedAt: new Date('2024-01-15'),
     publishedAt: new Date('2024-01-15'),
     views: 245,
-    featured: true
+    featured: true,
+    vehicleType: 'sedan',
   },
   {
     id: '2',
@@ -84,7 +85,8 @@ export const mockVehicles: Vehicle[] = [
     updatedAt: new Date('2024-01-20'),
     publishedAt: new Date('2024-01-20'),
     views: 189,
-    featured: true
+    featured: true,
+    vehicleType: 'suv',
   },
   {
     id: '3',
@@ -122,7 +124,8 @@ export const mockVehicles: Vehicle[] = [
     updatedAt: new Date('2024-02-01'),
     publishedAt: new Date('2024-02-01'),
     views: 156,
-    featured: false
+    featured: false,
+    vehicleType: 'sedan',
   },
   {
     id: '4',
@@ -160,7 +163,8 @@ export const mockVehicles: Vehicle[] = [
     updatedAt: new Date('2024-02-15'),
     publishedAt: new Date('2024-02-15'),
     views: 312,
-    featured: true
+    featured: true,
+    vehicleType: 'pickup',
   },
   {
     id: '5',
@@ -199,7 +203,8 @@ export const mockVehicles: Vehicle[] = [
     updatedAt: new Date('2024-02-20'),
     publishedAt: new Date('2024-02-20'),
     views: 198,
-    featured: false
+    featured: false,
+    vehicleType: 'hatchback',
   },
   {
     id: '6',
@@ -238,7 +243,8 @@ export const mockVehicles: Vehicle[] = [
     updatedAt: new Date('2024-03-01'),
     publishedAt: new Date('2024-03-01'),
     views: 267,
-    featured: true
+    featured: true,
+    vehicleType: 'suv',
   }
 ];
 

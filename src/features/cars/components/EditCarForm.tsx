@@ -120,6 +120,7 @@ interface FormData {
   price: string; mileage: string; invoice: string; owners: string
   description: string; featured: boolean; status: string
   images: string[]; exterior_color: string; interior_color: string
+  transmission: string; fuel_type: string; condition: string; vehicle_type: string
   [key: string]: string | boolean | string[]
 }
 
@@ -145,6 +146,10 @@ export function EditCarForm({ car }: { car: Car }) {
     images: car.images || [],
     exterior_color: car.exterior_color || '',
     interior_color: car.interior_color || '',
+    transmission: car.transmission || '',
+    fuel_type: car.fuel_type || '',
+    condition: car.condition || '',
+    vehicle_type: car.vehicle_type || '',
     xenon_headlights: car.xenon_headlights,
     aluminum_rims: car.aluminum_rims,
     fog_lights: car.fog_lights,
@@ -244,6 +249,10 @@ export function EditCarForm({ car }: { car: Car }) {
     formPayload.append('images', JSON.stringify(formData.images))
     formPayload.append('exterior_color', formData.exterior_color)
     formPayload.append('interior_color', formData.interior_color)
+    formPayload.append('transmission', formData.transmission)
+    formPayload.append('fuel_type', formData.fuel_type)
+    formPayload.append('condition', formData.condition)
+    formPayload.append('vehicle_type', formData.vehicle_type)
 
     for (const [key, val] of Object.entries(formData)) {
       if (typeof val === 'boolean') {
@@ -346,6 +355,57 @@ export function EditCarForm({ car }: { car: Car }) {
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-300">Kilometraje</label>
               <input name="mileage" type="text" value={formData.mileage} onChange={handleInputChange} className={inputClass} />
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label htmlFor="transmission" className="block text-sm font-medium text-gray-300">Transmisión *</label>
+              <select id="transmission" name="transmission" required value={formData.transmission} onChange={handleInputChange} className={inputClass}>
+                <option value="">Seleccionar...</option>
+                <option value="manual">Manual</option>
+                <option value="automatic">Automática</option>
+                <option value="cvt">CVT</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="fuel_type" className="block text-sm font-medium text-gray-300">Combustible *</label>
+              <select id="fuel_type" name="fuel_type" required value={formData.fuel_type} onChange={handleInputChange} className={inputClass}>
+                <option value="">Seleccionar...</option>
+                <option value="gasoline">Gasolina</option>
+                <option value="diesel">Diésel</option>
+                <option value="electric">Eléctrico</option>
+                <option value="hybrid">Híbrido</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label htmlFor="condition" className="block text-sm font-medium text-gray-300">Condición *</label>
+              <select id="condition" name="condition" required value={formData.condition} onChange={handleInputChange} className={inputClass}>
+                <option value="">Seleccionar...</option>
+                <option value="new">Nuevo</option>
+                <option value="semi-new">Seminuevo</option>
+                <option value="certified">Certificado</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="vehicle_type" className="block text-sm font-medium text-gray-300">Tipo de vehículo *</label>
+              <select id="vehicle_type" name="vehicle_type" required value={formData.vehicle_type} onChange={handleInputChange} className={inputClass}>
+                <option value="">Seleccionar...</option>
+                <option value="sedan">Sedán</option>
+                <option value="suv">SUV</option>
+                <option value="compacto">Compacto</option>
+                <option value="convertible">Convertible</option>
+                <option value="hatchback">Hatchback</option>
+                <option value="minivan">Minivan</option>
+                <option value="pickup">Pickup</option>
+                <option value="station_wagon">Station Wagon</option>
+                <option value="van">Van</option>
+                <option value="deportivo">Deportivo</option>
+                <option value="todo_terreno">Todo Terreno</option>
+              </select>
             </div>
           </div>
 
