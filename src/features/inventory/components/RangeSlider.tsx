@@ -61,10 +61,10 @@ export function RangeSlider({ min, max, step, value, onChange, formatLabel, labe
         <span>{fmt(minVal)}</span>
         <span>{fmt(maxVal)}</span>
       </div>
-      <div ref={trackRef} className="relative h-2 rounded-full bg-[#1e2d3d] cursor-pointer select-none">
+      <div ref={trackRef} className="relative h-1 rounded-full bg-[#4a5f75] cursor-pointer select-none">
         {/* Active range */}
         <div
-          className="absolute h-full rounded-full bg-cyan-500"
+          className="absolute h-full rounded-full bg-white"
           style={{ left: `${pct(minVal)}%`, width: `${pct(maxVal) - pct(minVal)}%` }}
         />
         {/* Min thumb */}
