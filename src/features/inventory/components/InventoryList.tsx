@@ -5,6 +5,7 @@ import { VehicleFilters as VehicleFiltersType } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { VehicleCard } from './VehicleCard';
 import { VehicleFilters } from './VehicleFilters';
+import { SlidersHorizontal, X } from 'lucide-react';
 
 interface InventoryListProps {
   initialFilters?: VehicleFiltersType;
@@ -17,6 +18,7 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<VehicleFiltersType>(initialFilters);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadMakes();
@@ -43,12 +45,12 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
 
   const handleFiltersChange = (newFilters: VehicleFiltersType) => {
     setFilters(newFilters);
-    setPage(1); // Reset a primera página cuando cambian filtros
+    setPage(1);
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Inventario de Autos
         </h1>
@@ -62,9 +64,23 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
         </p>
       </div>
 
-      <div className="flex gap-8">
+      {/* Mobile filter toggle */}
+      <button
+        onClick={() => setShowFilters(!showFilters)}
+        className="lg:hidden w-full flex items-center justify-center gap-2 py-3 mb-4 bg-white border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+      >
+        <SlidersHorizontal className="w-4 h-4" />
+        {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+      </button>
+
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar de filtros */}
-        <aside className="w-full lg:w-1/4 flex-shrink-0">
+        <aside className={`w-full lg:w-1/4 flex-shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <div className="lg:hidden flex justify-end mb-2">
+            <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
           <VehicleFilters
             makes={makes}
             onFiltersChange={handleFiltersChange}
@@ -75,7 +91,7 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
         {/* Grid de vehículos */}
         <div className="flex-1">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
@@ -106,7 +122,7 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
                 {vehicles.map((vehicle, index) => (
                   <VehicleCard
                     key={vehicle.id}
@@ -130,7 +146,7 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
                     Página {Math.ceil(total / 12) > 0 ? page : 0} de {Math.ceil(total / 12)}
                   </span>
                   <button
-                    onClick={() => setPage(p => Math.min(Math.ceil(total / 12), p + 1))}
+                    onClick={() => setPage(p => p + 1)}
                     disabled={page >= Math.ceil(total / 12)}
                     className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
