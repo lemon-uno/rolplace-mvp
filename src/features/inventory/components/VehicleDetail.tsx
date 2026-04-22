@@ -25,6 +25,8 @@ import {
   MessageCircle,
   Wrench,
   FileText,
+  ShieldCheck,
+  Car,
   Play,
   ArrowLeftRight,
 } from 'lucide-react';
@@ -446,6 +448,18 @@ export function VehicleDetail() {
                     <div><div className="text-xs text-gray-500">Factura</div><div className="font-semibold text-gray-900 capitalize">{vehicle.invoice === 'original' ? 'Original' : 'Refactura'}</div></div>
                   </div>
                 )}
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <ShieldCheck className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div><div className="text-xs text-gray-500">Condición</div><div className="font-semibold text-gray-900">
+                    {{ new: 'Nuevo', 'semi-new': 'Seminuevo', certified: 'Certificado' }[vehicle.condition]}
+                  </div></div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Car className="w-5 h-5 text-gray-400 shrink-0" />
+                  <div><div className="text-xs text-gray-500">Tipo</div><div className="font-semibold text-gray-900">
+                    {{ sedan: 'Sedán', suv: 'SUV', compacto: 'Compacto', convertible: 'Convertible', hatchback: 'Hatchback', minivan: 'Minivan', pickup: 'Pickup', station_wagon: 'Station Wagon', van: 'Van', deportivo: 'Deportivo', todo_terreno: 'Todo Terreno' }[vehicle.vehicleType]}
+                  </div></div>
+                </div>
               </div>
             </div>
 
