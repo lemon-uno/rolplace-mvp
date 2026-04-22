@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Vehicle } from '../types/vehicle.types';
-import { motion } from 'framer-motion';
+import { Gauge, Settings2 } from 'lucide-react';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -10,154 +10,66 @@ interface VehicleCardProps {
 }
 
 export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(price);
 
-  const formatMileage = (mileage: number) => {
-    return new Intl.NumberFormat('es-MX').format(mileage) + ' km';
-  };
+  const formatMileage = (mileage: number) =>
+    new Intl.NumberFormat('es-MX').format(mileage) + ' km';
 
-  const transmissionLabels: Record<string, string> = {
-    'automatic': 'Automático',
-    'manual': 'Manual',
-    'cvt': 'CVT'
+  const transmissionLabel: Record<string, string> = {
+    automatic: 'Automático',
+    manual: 'Manual',
+    cvt: 'CVT',
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="group"
-    >
-      <Link href={`/inventory/${vehicle.slug}`} className="block h-full">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 h-full border border-gray-200 hover:border-blue-500">
-          {/* Imagen */}
-          <div className="relative h-48 overflow-hidden bg-gray-100">
-            {vehicle.featuredImage || (vehicle.images && vehicle.images.length > 0) ? (
-              <img
-                src={vehicle.featuredImage || vehicle.images[0]}
-                alt={vehicle.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                Sin imagen
-              </div>
-            )}
-
-            {/* Etiquetas */}
-            <div className="absolute top-2 left-2 flex gap-2">
-              {vehicle.featured && (
-                <span className="bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded">
-                  Destacado
-                </span>
-              )}
-              <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                vehicle.condition === 'new'
-                  ? 'bg-green-500 text-white'
-                  : vehicle.condition === 'semi-new'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-500 text-white'
-              }`}>
-                {vehicle.condition === 'new' ? 'Nuevo' : vehicle.condition === 'semi-new' ? 'Seminuevo' : 'Usado'}
-              </span>
+    <Link href={`/inventory/${vehicle.slug}`} className="block group">
+      <div className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+        {/* Imagen */}
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+          {vehicle.featuredImage || (vehicle.images && vehicle.images.length > 0) ? (
+            <img
+              src={vehicle.featuredImage || vehicle.images[0]}
+              alt={vehicle.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+              Sin imagen
             </div>
+          )}
+          {vehicle.featured && (
+            <span className="absolute top-3 left-3 bg-yellow-500 text-white text-xs font-semibold px-2.5 py-1 rounded">
+              Destacado
+            </span>
+          )}
+        </div>
 
-            {/* Vistas */}
-            {vehicle.views !== undefined && vehicle.views > 0 && (
-              <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                👁 {vehicle.views}
-              </div>
-            )}
-          </div>
+        {/* Info */}
+        <div className="px-4 pt-3 pb-4">
+          {/* Título / Descripción del auto */}
+          <h3 className="text-[15px] font-semibold leading-snug mb-2 line-clamp-2" style={{ color: '#13141A' }}>
+            {vehicle.title}
+          </h3>
 
-          {/* Información */}
-          <div className="p-4">
-            {/* Título */}
-            <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
-              {vehicle.title}
-            </h3>
-
-            {/* Marca y Modelo */}
-            <div className="text-sm text-gray-500 mb-2">
-              {vehicle.make} {vehicle.model}
-            </div>
-
-            {/* Especificaciones clave */}
-            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mb-3">
-              <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
-                📅 {vehicle.year}
+          {/* Precio + Kilometraje + Transmisión */}
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-xl font-bold" style={{ color: '#13141A' }}>
+              {formatPrice(vehicle.price)}
+            </span>
+            <div className="flex items-center gap-3 text-xs shrink-0" style={{ color: '#5E5E5E' }}>
+              <span className="flex items-center gap-1">
+                <Gauge className="w-3.5 h-3.5" style={{ color: '#5E5E5E' }} />
+                {formatMileage(vehicle.mileage)}
               </span>
-              <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
-                🚗 {formatMileage(vehicle.mileage)}
-              </span>
-              <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
-                ⚙️ {transmissionLabels[vehicle.transmission]}
-              </span>
-            </div>
-
-            {/* Descripción corta */}
-            {vehicle.description && (
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                {vehicle.description}
-              </p>
-            )}
-
-            {/* Precio */}
-            <div className="mb-3">
-              <span className="text-2xl font-bold text-blue-600">
-                {formatPrice(vehicle.price)}
-              </span>
-            </div>
-
-            {/* Ubicación */}
-            {vehicle.location && (
-              <div className="flex items-center gap-1 text-sm text-gray-500 mb-3">
-                📍 {vehicle.location}
-              </div>
-            )}
-
-            {/* Contador de imágenes */}
-            {vehicle.images && vehicle.images.length > 0 && (
-              <div className="text-xs text-gray-500 mb-2">
-                📷 {vehicle.images.length} {vehicle.images.length === 1 ? 'imagen' : 'imágenes'}
-              </div>
-            )}
-
-            {/* Features destacadas */}
-            {vehicle.features.length > 0 && (
-              <div className="flex flex-wrap gap-1 mb-3">
-                {vehicle.features.slice(0, 3).map((feature, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                  >
-                    {feature}
-                  </span>
-                ))}
-                {vehicle.features.length > 3 && (
-                  <span className="text-xs text-gray-500">
-                    +{vehicle.features.length - 3} más
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Botón */}
-            <div className="pt-3 border-t border-gray-100">
-              <span className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
-                Ver detalles →
+              <span className="flex items-center gap-1">
+                <Settings2 className="w-3.5 h-3.5" style={{ color: '#5E5E5E' }} />
+                {transmissionLabel[vehicle.transmission]}
               </span>
             </div>
           </div>
         </div>
-      </Link>
-    </motion.div>
+      </div>
+    </Link>
   );
 }
