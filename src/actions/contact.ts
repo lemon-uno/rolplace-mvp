@@ -55,25 +55,21 @@ export async function submitContactForm(data: {
       return { success: false, message: 'Error al enviar el mensaje. Intenta nuevamente.' }
     }
 
-    // Send email via Resend (same pattern as Toma de Auto)
-    if (owner?.email) {
-      try {
-        await sendEmail({
-          to: owner.email,
-          subject: `Nuevo contacto — ${car.title}`,
-          react: React.createElement(ContactEmail, {
-            vehicleTitle: car.title,
-            contactName: data.name,
-            contactPhone: data.phone,
-            contactEmail: data.email,
-            preferredContact: data.preferredContact || 'whatsapp',
-            message: data.message || '',
-          }),
-        })
-      } catch (emailError) {
-        console.error('Error sending contact email:', emailError)
-        // Email failed but data was saved — still return success
-      }
+    // Return success immediately — email sends in background
+    const ownerEmail = owner?.email
+    if (ownerEmail) {
+      sendEmail({
+        to: ownerEmail,
+        subject: `Nuevo contacto — ${car.title}`,
+        react: React.createElement(ContactEmail, {
+          vehicleTitle: car.title,
+          contactName: data.name,
+          contactPhone: data.phone,
+          contactEmail: data.email,
+          preferredContact: data.preferredContact || 'whatsapp',
+          message: data.message || '',
+        }),
+      }).catch((err) => console.error('Contact email error:', err))
     }
 
     return { success: true, message: 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.' }
