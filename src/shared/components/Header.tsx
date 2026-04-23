@@ -9,17 +9,12 @@ export function Header() {
   const router = useRouter();
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="shadow-sm sticky top-0 z-50" style={{ backgroundColor: '#f3f7fc' }}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="text-3xl font-bold">
-                <span className="text-blue-600">ROL</span>
-                <span className="text-red-600">PLACE</span>
-              </span>
-            </div>
+            <img src="/rolplace-logo.png" alt="Rolplace" className="h-12 w-auto" />
           </Link>
 
           {/* Navegación central */}

@@ -4,16 +4,13 @@ import Link from 'next/link';
 
 export function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200">
+    <footer className="border-t border-gray-200" style={{ backgroundColor: '#f3f7fc' }}>
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Columna izquierda: Logo y redes sociales */}
           <div>
             <div className="mb-4">
-              <span className="text-2xl font-bold">
-                <span className="text-blue-600">ROL</span>
-                <span className="text-red-600">PLACE</span>
-              </span>
+              <img src="/rolplace-logo.png" alt="Rolplace" className="h-10 w-auto" />
             </div>
             <p className="text-gray-600 mb-4">
               Tu destino de confianza para autos seminuevos
