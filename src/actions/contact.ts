@@ -1,6 +1,9 @@
 'use server'
 
+import React from 'react'
 import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/features/email/services/emailService'
+import ContactEmail from '@/features/email/templates/ContactEmail'
 
 export async function submitContactForm(data: {
   vehicleId: string
@@ -16,7 +19,7 @@ export async function submitContactForm(data: {
     // Verify car exists and is available
     const { data: car } = await supabase
       .from('cars')
-      .select('id, title, status')
+      .select('id, title, user_id, status')
       .eq('id', data.vehicleId)
       .single()
 
@@ -28,8 +31,15 @@ export async function submitContactForm(data: {
       return { success: false, message: 'Este vehículo ya no está disponible.' }
     }
 
+    // Get owner email
+    const { data: owner } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', car.user_id)
+      .single()
+
     // Save to database
-    const { error } = await supabase
+    const { error: dbError } = await supabase
       .from('contact_submissions')
       .insert({
         car_id: data.vehicleId,
@@ -40,28 +50,30 @@ export async function submitContactForm(data: {
         preferred_contact: data.preferredContact || 'whatsapp',
       })
 
-    if (error) {
-      console.error('Error saving contact submission:', error)
+    if (dbError) {
+      console.error('Error saving contact submission:', dbError)
       return { success: false, message: 'Error al enviar el mensaje. Intenta nuevamente.' }
     }
 
-    // Fire-and-forget: forward to N8N webhook in background (never blocks response)
-    const webhookUrl = process.env.N8N_CONTACT_WEBHOOK_URL
-    if (webhookUrl) {
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          vehicle: {
-            id: car.id,
-            title: car.title,
-            url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/inventory/${car.id}`,
-          },
-          timestamp: new Date().toISOString(),
-          source: 'rolplace-web',
-        }),
-      }).catch(() => {})
+    // Send email via Resend (same pattern as Toma de Auto)
+    if (owner?.email) {
+      try {
+        await sendEmail({
+          to: owner.email,
+          subject: `Nuevo contacto — ${car.title}`,
+          react: React.createElement(ContactEmail, {
+            vehicleTitle: car.title,
+            contactName: data.name,
+            contactPhone: data.phone,
+            contactEmail: data.email,
+            preferredContact: data.preferredContact || 'whatsapp',
+            message: data.message || '',
+          }),
+        })
+      } catch (emailError) {
+        console.error('Error sending contact email:', emailError)
+        // Email failed but data was saved — still return success
+      }
     }
 
     return { success: true, message: 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.' }
