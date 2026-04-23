@@ -123,3 +123,13 @@ export async function updateProfile(formData: FormData) {
   revalidatePath('/', 'layout')
   return { success: true }
 }
+
+export async function getContactPhone(): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('phone')
+    .limit(1)
+    .single()
+  return data?.phone || null
+}

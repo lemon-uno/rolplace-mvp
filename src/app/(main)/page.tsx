@@ -1,10 +1,17 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
+import { getContactPhone } from '@/actions/auth';
 
 export default function HomePage() {
+  const [contactPhone, setContactPhone] = useState<string | null>(null);
+
+  useEffect(() => {
+    getContactPhone().then(setContactPhone);
+  }, []);
   const featuredVehicles = [
     {
       id: '1',
@@ -59,9 +66,18 @@ export default function HomePage() {
               >
                 Ver Inventario
               </Link>
-              <button className="px-8 py-4 bg-transparent border-2 border-cyan-400 text-white font-bold rounded-lg hover:bg-cyan-400 hover:text-black transition-colors">
-                Contáctanos
-              </button>
+              {contactPhone ? (
+                <a
+                  href={`tel:${contactPhone}`}
+                  className="px-8 py-4 bg-transparent border-2 border-cyan-400 text-white font-bold rounded-lg hover:bg-cyan-400 hover:text-black transition-colors text-center"
+                >
+                  Contáctanos
+                </a>
+              ) : (
+                <button className="px-8 py-4 bg-transparent border-2 border-cyan-400 text-white font-bold rounded-lg hover:bg-cyan-400 hover:text-black transition-colors opacity-50 cursor-not-allowed">
+                  Contáctanos
+                </button>
+              )}
             </div>
           </motion.div>
         </div>
