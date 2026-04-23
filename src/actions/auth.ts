@@ -132,8 +132,8 @@ export async function getContactPhone(): Promise<string | null> {
   )
   const { data } = await supabase
     .from('profiles')
-    .select('phone')
+    .select('phone, whatsapp')
     .limit(1)
     .single()
-  return data?.phone || null
+  return data?.phone || data?.whatsapp || null
 }
