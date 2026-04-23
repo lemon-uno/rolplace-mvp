@@ -45,28 +45,23 @@ export async function submitContactForm(data: {
       return { success: false, message: 'Error al enviar el mensaje. Intenta nuevamente.' }
     }
 
-    // Optionally forward to N8N webhook
+    // Fire-and-forget: forward to N8N webhook in background (never blocks response)
     const webhookUrl = process.env.N8N_CONTACT_WEBHOOK_URL
     if (webhookUrl) {
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...data,
-            vehicle: {
-              id: car.id,
-              title: car.title,
-              url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/inventory/${car.id}`,
-            },
-            timestamp: new Date().toISOString(),
-            source: 'rolplace-web',
-          }),
-        })
-      } catch {
-        // Webhook failure doesn't affect the user — message is already saved
-        console.warn('N8N webhook failed, but contact was saved to DB')
-      }
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          vehicle: {
+            id: car.id,
+            title: car.title,
+            url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/inventory/${car.id}`,
+          },
+          timestamp: new Date().toISOString(),
+          source: 'rolplace-web',
+        }),
+      }).catch(() => {})
     }
 
     return { success: true, message: 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.' }
