@@ -108,6 +108,7 @@ export async function updateProfile(formData: FormData) {
       full_name: formData.get('full_name') as string,
       phone: formData.get('phone') as string || null,
       whatsapp: formData.get('whatsapp') as string || null,
+      whatsapp_mensaje: formData.get('whatsapp_mensaje') as string || null,
       tasa_interes_anual: tasaRaw ? parseFloat(tasaRaw) : null,
       plazo_credito_meses: plazoRaw ? parseInt(plazoRaw, 10) : null,
       enganche_porcentaje: engancheRaw ? parseFloat(engancheRaw) : null,

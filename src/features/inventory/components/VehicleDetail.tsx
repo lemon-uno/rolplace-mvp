@@ -169,6 +169,7 @@ export function VehicleDetail() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeFeatureTab, setActiveFeatureTab] = useState<FeatureTab>('exterior');
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [whatsappMensaje, setWhatsappMensaje] = useState<string | null>(null);
   const [financingDefaults, setFinancingDefaults] = useState<{
     tasaInteresAnual: number | null;
     plazoCreditoMeses: number | null;
@@ -212,7 +213,10 @@ export function VehicleDetail() {
         const similar = await InventoryService.getSimilarVehicles(data.id, data.make, data.price, 4);
         setSimilarVehicles(similar);
         const wa = await getOwnerWhatsApp(data.id);
-        setWhatsappNumber(wa);
+        if (wa) {
+          setWhatsappNumber(wa.number);
+          setWhatsappMensaje(wa.mensaje);
+        }
         const fin = await getOwnerFinancingSettings(data.id);
         setFinancingDefaults(fin);
       }
@@ -570,7 +574,11 @@ export function VehicleDetail() {
             {/* WhatsApp Button */}
             {whatsappNumber && (
               <a
-                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Me interesa el vehículo ${vehicle.title}. Me podrán contactar para más información.`)}`}
+                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                  whatsappMensaje
+                    ? whatsappMensaje.replace('[VEHICULO]', vehicle.title)
+                    : `Me interesa el vehículo ${vehicle.title}. Me podrán contactar para más información.`
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors mt-2"

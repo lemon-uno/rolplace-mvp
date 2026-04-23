@@ -8,6 +8,7 @@ interface ProfileData {
   email: string
   phone: string | null
   whatsapp: string | null
+  whatsapp_mensaje: string | null
 }
 
 export function SettingsForm({ profile, userEmail }: { profile: ProfileData; userEmail: string }) {
@@ -60,6 +61,12 @@ export function SettingsForm({ profile, userEmail }: { profile: ProfileData; use
         <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-300">WhatsApp</label>
         <input id="whatsapp" name="whatsapp" type="tel" defaultValue={profile.whatsapp || ''} placeholder="Ej: 528112345678 (con código de país)" className={inputClass} />
         <p className="text-xs text-gray-500">Número con código de país, sin espacios ni signos. Se usará para el botón de WhatsApp en las publicaciones.</p>
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="whatsapp_mensaje" className="block text-sm font-medium text-gray-300">Mensaje predeterminado de WhatsApp</label>
+        <textarea id="whatsapp_mensaje" name="whatsapp_mensaje" rows={3} defaultValue={profile.whatsapp_mensaje || ''} placeholder="Ej: Me interesa el [VEHICULO], quiero informes." className={inputClass + ' resize-none'} />
+        <p className="text-xs text-gray-500">Usa la etiqueta [VEHICULO] donde quieras que aparezca el nombre del auto. Ejemplo: Me interesa el [VEHICULO], quiero informes.</p>
       </div>
 
       <div className="pt-4 border-t border-gray-700">

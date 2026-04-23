@@ -238,7 +238,7 @@ export async function deleteCar(id: string) {
   return { success: true }
 }
 
-export async function getOwnerWhatsApp(carId: string): Promise<string | null> {
+export async function getOwnerWhatsApp(carId: string): Promise<{ number: string | null; mensaje: string | null } | null> {
   const supabase = await createClient()
 
   const { data: car } = await supabase
@@ -251,9 +251,10 @@ export async function getOwnerWhatsApp(carId: string): Promise<string | null> {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('whatsapp')
+    .select('whatsapp, whatsapp_mensaje')
     .eq('id', car.user_id)
     .single()
 
-  return profile?.whatsapp || null
+  if (!profile) return null
+  return { number: profile.whatsapp, mensaje: profile.whatsapp_mensaje }
 }
