@@ -5,78 +5,68 @@ import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/features/email/services/emailService'
 import ContactEmail from '@/features/email/templates/ContactEmail'
 
-export async function submitContactForm(data: {
-  vehicleId: string
-  name: string
-  email: string
-  phone: string
-  message: string
-  preferredContact?: 'email' | 'phone' | 'whatsapp'
-}): Promise<{ success: boolean; message: string }> {
-  try {
-    const supabase = await createClient()
+export async function submitContactForm(formData: FormData) {
+  const vehicleId = formData.get('vehicleId') as string
+  const name = formData.get('name') as string
+  const email = formData.get('email') as string
+  const phone = formData.get('phone') as string
+  const message = (formData.get('message') as string) || ''
+  const preferredContact = (formData.get('preferredContact') as string) || 'whatsapp'
 
-    // Verify car exists and is available
-    const { data: car } = await supabase
-      .from('cars')
-      .select('id, title, user_id, status')
-      .eq('id', data.vehicleId)
-      .single()
-
-    if (!car) {
-      return { success: false, message: 'Vehículo no encontrado.' }
-    }
-
-    if (car.status !== 'available') {
-      return { success: false, message: 'Este vehículo ya no está disponible.' }
-    }
-
-    // Get owner email
-    const { data: owner } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('id', car.user_id)
-      .single()
-
-    // Save to database
-    const { error: dbError } = await supabase
-      .from('contact_submissions')
-      .insert({
-        car_id: data.vehicleId,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        message: data.message || '',
-        preferred_contact: data.preferredContact || 'whatsapp',
-      })
-
-    if (dbError) {
-      console.error('Error saving contact submission:', dbError)
-      return { success: false, message: 'Error al enviar el mensaje. Intenta nuevamente.' }
-    }
-
-    // Return success immediately — email sends in background
-    const ownerEmail = owner?.email
-    if (ownerEmail) {
-      sendEmail({
-        to: ownerEmail,
-        subject: `Nuevo contacto — ${car.title}`,
-        react: React.createElement(ContactEmail, {
-          vehicleTitle: car.title,
-          contactName: data.name,
-          contactPhone: data.phone,
-          contactEmail: data.email,
-          preferredContact: data.preferredContact || 'whatsapp',
-          message: data.message || '',
-        }),
-      }).catch((err) => console.error('Contact email error:', err))
-    }
-
-    return { success: true, message: 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.' }
-  } catch (error) {
-    console.error('Error in submitContactForm:', error)
-    return { success: false, message: 'Error al enviar el mensaje. Intenta nuevamente.' }
+  if (!vehicleId || !name || !email || !phone) {
+    return { error: 'Todos los campos marcados con * son requeridos.' }
   }
+
+  const supabase = await createClient()
+
+  const { data: car } = await supabase
+    .from('cars')
+    .select('id, title, user_id, status')
+    .eq('id', vehicleId)
+    .single()
+
+  if (!car) return { error: 'Vehículo no encontrado.' }
+  if (car.status !== 'available') return { error: 'Este vehículo ya no está disponible.' }
+
+  const { data: owner } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('id', car.user_id)
+    .single()
+
+  const { error: dbError } = await supabase
+    .from('contact_submissions')
+    .insert({
+      car_id: vehicleId,
+      name,
+      email,
+      phone,
+      message,
+      preferred_contact: preferredContact,
+    })
+
+  if (dbError) {
+    console.error('Error saving contact:', dbError)
+    return { error: 'Error al guardar. Intenta nuevamente.' }
+  }
+
+  // Send email in background — don't block the response
+  if (owner?.email) {
+    sendEmail({
+      to: owner.email,
+      subject: `Nuevo contacto — ${car.title}`,
+      react: React.createElement(ContactEmail, {
+        vehicleTitle: car.title,
+        contactName: name,
+        contactPhone: phone,
+        contactEmail: email,
+        preferredContact,
+        message,
+      }),
+    }).catch((err) => console.error('Contact email error:', err))
+  }
+
+  return { success: true }
 }
 
 export async function getContactSubmissions(): Promise<{

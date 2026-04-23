@@ -229,27 +229,16 @@ export function VehicleDetail() {
     setSubmitting(true);
     setMessage(null);
     const formData = new FormData(e.currentTarget);
-    try {
-      const result = await submitContactForm({
-        vehicleId: vehicle.id,
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        message: formData.get('message') as string,
-        preferredContact: formData.get('preferredContact') as 'email' | 'phone' | 'whatsapp' | undefined,
-      });
-      if (result.success) {
-        setMessage({ type: 'success', text: result.message });
-        (e.currentTarget as HTMLFormElement).reset();
-        setTimeout(() => { setShowContactForm(false); setMessage(null); }, 3000);
-      } else {
-        setMessage({ type: 'error', text: result.message });
-      }
-    } catch {
-      setMessage({ type: 'error', text: 'Error al enviar el mensaje.' });
-    } finally {
-      setSubmitting(false);
+    formData.set('vehicleId', vehicle.id);
+    const result = await submitContactForm(formData);
+    if (result.error) {
+      setMessage({ type: 'error', text: result.error });
+    } else {
+      setMessage({ type: 'success', text: 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.' });
+      (e.currentTarget as HTMLFormElement).reset();
+      setTimeout(() => { setShowContactForm(false); setMessage(null); }, 3000);
     }
+    setSubmitting(false);
   };
 
   if (loading) {
