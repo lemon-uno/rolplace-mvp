@@ -93,6 +93,17 @@ export interface Car {
   vehicle_type: string | null
 }
 
+export interface ContactSubmission {
+  id: string
+  car_id: string
+  name: string
+  email: string
+  phone: string
+  message: string
+  preferred_contact: 'email' | 'phone' | 'whatsapp'
+  created_at: string
+}
+
 export interface Database {
   public: {
     Tables: {

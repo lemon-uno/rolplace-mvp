@@ -6,6 +6,7 @@ import { Vehicle } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { getOwnerWhatsApp } from '@/actions/cars';
 import { getOwnerFinancingSettings } from '@/actions/financing';
+import { submitContactForm } from '@/actions/contact';
 import { TomaAutoForm } from './TomaAutoForm';
 import { FinancingCalculator } from './FinancingCalculator';
 import {
@@ -228,16 +229,15 @@ export function VehicleDetail() {
     setSubmitting(true);
     setMessage(null);
     const formData = new FormData(e.currentTarget);
-    const data = {
-      vehicleId: vehicle.id,
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      message: formData.get('message') as string,
-      preferredContact: formData.get('preferredContact') as 'email' | 'phone' | 'whatsapp' | undefined,
-    };
     try {
-      const result = await InventoryService.sendContactForm(data);
+      const result = await submitContactForm({
+        vehicleId: vehicle.id,
+        name: formData.get('name') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
+        message: formData.get('message') as string,
+        preferredContact: formData.get('preferredContact') as 'email' | 'phone' | 'whatsapp' | undefined,
+      });
       if (result.success) {
         setMessage({ type: 'success', text: result.message });
         (e.currentTarget as HTMLFormElement).reset();
