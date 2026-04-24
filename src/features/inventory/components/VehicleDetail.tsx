@@ -605,9 +605,9 @@ export function VehicleDetail() {
             {/* Agendar Cita */}
             <button
               onClick={() => setShowAgendarCita(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 text-[#215add] font-semibold rounded-lg border-2 border-[#215add] hover:bg-[#215add] hover:text-white transition-colors group"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-white border border-gray-300 text-[#1b2064] font-semibold rounded-lg hover:bg-gray-50 transition-colors mt-2"
             >
-              <CalendarClock className="w-5 h-5 group-hover:text-white" style={{ color: '#215add' }} />
+              <CalendarClock className="w-5 h-5 text-[#215add]" />
               Agendar cita
             </button>
           </div>
