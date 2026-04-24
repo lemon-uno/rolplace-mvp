@@ -8,6 +8,7 @@ import { getOwnerWhatsApp } from '@/actions/cars';
 import { getOwnerFinancingSettings } from '@/actions/financing';
 import { submitContactForm } from '@/actions/contact';
 import { TomaAutoForm } from './TomaAutoForm';
+import { AgendarCitaForm } from './AgendarCitaForm';
 import { FinancingCalculator } from './FinancingCalculator';
 import {
   X,
@@ -15,7 +16,7 @@ import {
   ChevronRight,
   ZoomIn,
   Calendar,
-  Gauge,
+  CalendarClock,  Gauge,
   Settings2,
   Fuel,
   DoorOpen,
@@ -176,6 +177,7 @@ export function VehicleDetail() {
     enganchePorcentaje: number | null;
   } | null>(null);
   const [showTomaAuto, setShowTomaAuto] = useState(false);
+  const [showAgendarCita, setShowAgendarCita] = useState(false);
 
   useEffect(() => {
     if (params.slug) {
@@ -599,6 +601,15 @@ export function VehicleDetail() {
 
             {/* Financing Calculator */}
             <FinancingCalculator price={vehicle.price} defaults={financingDefaults} />
+
+            {/* Agendar Cita */}
+            <button
+              onClick={() => setShowAgendarCita(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 text-[#215add] font-semibold rounded-lg border-2 border-[#215add] hover:bg-[#215add] hover:text-white transition-colors group"
+            >
+              <CalendarClock className="w-5 h-5 group-hover:text-white" style={{ color: '#215add' }} />
+              Agendar cita
+            </button>
           </div>
         </div>
       </div>
@@ -610,6 +621,16 @@ export function VehicleDetail() {
           vehicleTitle={vehicle.title}
           open={showTomaAuto}
           onClose={() => setShowTomaAuto(false)}
+        />
+      )}
+
+      {/* Agendar Cita Modal */}
+      {vehicle && (
+        <AgendarCitaForm
+          vehicleId={vehicle.id}
+          vehicleTitle={vehicle.title}
+          open={showAgendarCita}
+          onClose={() => setShowAgendarCita(false)}
         />
       )}
 
