@@ -2,30 +2,38 @@
 
 import Link from 'next/link';
 import { Vehicle } from '../types/vehicle.types';
-import { Gauge, Cog } from 'lucide-react';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
   index?: number;
 }
 
-export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
+const fuelLabels: Record<string, string> = {
+  gasoline: 'Gasolina',
+  diesel: 'Diésel',
+  electric: 'Eléctrico',
+  hybrid: 'Híbrido',
+};
+
+const transmissionLabels: Record<string, string> = {
+  automatic: 'Automático',
+  manual: 'Manual',
+  cvt: 'CVT',
+};
+
+export function VehicleCard({ vehicle }: VehicleCardProps) {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(price);
 
-  const formatMileage = (mileage: number) =>
-    new Intl.NumberFormat('es-MX').format(mileage) + ' km';
+  const formatKm = (km: number) =>
+    new Intl.NumberFormat('es-MX').format(km) + ' km';
 
-  const transmissionLabel: Record<string, string> = {
-    automatic: 'Automático',
-    manual: 'Manual',
-    cvt: 'CVT',
-  };
+  const estimatedMonthly = Math.round(vehicle.price / 48);
 
   return (
     <Link href={`/inventory/${vehicle.slug}`} className="block group">
-      <div className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#69eac9]">
-        {/* Imagen */}
+      <div className="bg-white rounded overflow-hidden border border-gray-200 hover:shadow-md transition-shadow duration-200">
+        {/* Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           {vehicle.featuredImage || (vehicle.images && vehicle.images.length > 0) ? (
             <img
@@ -39,35 +47,48 @@ export function VehicleCard({ vehicle, index = 0 }: VehicleCardProps) {
             </div>
           )}
           {vehicle.featured && (
-            <span className="absolute top-3 left-3 bg-yellow-500 text-white text-xs font-semibold px-2.5 py-1 rounded">
+            <span className="absolute top-2 left-2 bg-[#3498DB] text-white text-[10px] font-semibold px-2 py-0.5 rounded">
               Destacado
             </span>
           )}
         </div>
 
-        {/* Info */}
-        <div className="px-4 pt-3 pb-4">
-          {/* Título / Descripción del auto */}
-          <h3 className="text-[15px] font-semibold leading-snug mb-2 line-clamp-2" style={{ color: '#13141A' }}>
-            {vehicle.title}
+        {/* Body */}
+        <div className="p-3">
+          {/* Title: Make bold + model + version */}
+          <h3 className="text-sm font-semibold text-[#13141A] leading-tight mb-1 line-clamp-2">
+            <span className="font-bold">{vehicle.make}</span>{' '}
+            {vehicle.model}
+            {vehicle.version && vehicle.version !== vehicle.model ? ` ${vehicle.version}` : ''}
           </h3>
 
-          {/* Precio + Kilometraje + Transmisión */}
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="text-xl font-bold" style={{ color: '#13141A' }}>
-              {formatPrice(vehicle.price)}
-            </span>
-            <div className="flex items-center gap-3 text-xs shrink-0" style={{ color: '#5E5E5E' }}>
-              <span className="flex items-center gap-1">
-                <Gauge className="w-3.5 h-3.5" style={{ color: '#5E5E5E' }} />
-                {formatMileage(vehicle.mileage)}
+          {/* Specs row */}
+          <p className="text-[11px] text-[#777] mb-2">
+            {vehicle.year} &middot; {formatKm(vehicle.mileage)}
+            {vehicle.motor ? ` · ${vehicle.motor}` : ''} &middot; {transmissionLabels[vehicle.transmission] || vehicle.transmission}
+          </p>
+
+          {/* Price */}
+          <p className="text-lg font-bold text-[#13141A] leading-tight">
+            {formatPrice(vehicle.price)}
+          </p>
+
+          {/* Badges + monthly */}
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex gap-1.5">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-[#555] border border-gray-200">
+                {transmissionLabels[vehicle.transmission]}
               </span>
-              <span className="flex items-center gap-1">
-                <Cog className="w-3.5 h-3.5" style={{ color: '#5E5E5E' }} />
-                {transmissionLabel[vehicle.transmission]}
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-[#555] border border-gray-200">
+                {fuelLabels[vehicle.fuelType] || vehicle.fuelType}
               </span>
             </div>
           </div>
+
+          {/* Monthly estimate */}
+          <p className="text-[11px] text-[#3498DB] font-medium mt-1.5">
+            Desde {formatPrice(estimatedMonthly)}/mes
+          </p>
         </div>
       </div>
     </Link>

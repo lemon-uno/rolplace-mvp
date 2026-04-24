@@ -5,25 +5,43 @@ import { VehicleFilters as VehicleFiltersType } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { VehicleCard } from './VehicleCard';
 import { VehicleFilters } from './VehicleFilters';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, ChevronDown, X } from 'lucide-react';
 
-interface InventoryListProps {
-  initialFilters?: VehicleFiltersType;
-}
+type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'year_asc' | 'year_desc' | 'km_asc';
 
-export function InventoryList({ initialFilters = {} }: InventoryListProps) {
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'newest', label: 'Más recientes' },
+  { value: 'price_asc', label: 'Precio: menor a mayor' },
+  { value: 'price_desc', label: 'Precio: mayor a menor' },
+  { value: 'year_desc', label: 'Año: más nuevo' },
+  { value: 'year_asc', label: 'Año: más antiguo' },
+  { value: 'km_asc', label: 'Km: menor' },
+];
+
+export function InventoryList() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [makes, setMakes] = useState<string[]>([]);
+  const [models, setModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState<VehicleFiltersType>(initialFilters);
+  const [filters, setFilters] = useState<VehicleFiltersType>({});
+  const [sort, setSort] = useState<SortOption>('newest');
   const [showFilters, setShowFilters] = useState(false);
+  const [showSort, setShowSort] = useState(false);
 
   useEffect(() => {
     loadMakes();
     loadVehicles();
-  }, [filters]);
+  }, [filters, page]);
+
+  useEffect(() => {
+    if (filters.make) {
+      InventoryService.getModelsByMake(filters.make).then(setModels);
+    } else {
+      setModels([]);
+    }
+  }, [filters.make]);
 
   const loadMakes = async () => {
     const makesData = await InventoryService.getMakes();
@@ -34,7 +52,9 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
     setLoading(true);
     try {
       const response = await InventoryService.getVehicles(filters, page, 12);
-      setVehicles(response.vehicles);
+      let sorted = [...response.vehicles];
+      sorted = applySorting(sorted, sort);
+      setVehicles(sorted);
       setTotal(response.total);
     } catch (error) {
       console.error('Error cargando vehículos:', error);
@@ -43,121 +63,215 @@ export function InventoryList({ initialFilters = {} }: InventoryListProps) {
     }
   };
 
+  const applySorting = (vehicles: any[], sort: SortOption) => {
+    const copy = [...vehicles];
+    switch (sort) {
+      case 'price_asc': return copy.sort((a, b) => a.price - b.price);
+      case 'price_desc': return copy.sort((a, b) => b.price - a.price);
+      case 'year_desc': return copy.sort((a, b) => b.year - a.year);
+      case 'year_asc': return copy.sort((a, b) => a.year - b.year);
+      case 'km_asc': return copy.sort((a, b) => a.mileage - b.mileage);
+      default: return copy.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    }
+  };
+
   const handleFiltersChange = (newFilters: VehicleFiltersType) => {
     setFilters(newFilters);
     setPage(1);
   };
 
+  const handleSortChange = (value: SortOption) => {
+    setSort(value);
+    setShowSort(false);
+    if (vehicles.length > 0) {
+      setVehicles(applySorting([...vehicles], value));
+    }
+  };
+
+  const activeFilterCount = Object.values(filters).filter(v => v !== undefined && v !== '').length;
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Inventario de Autos
-        </h1>
-        <p className="text-gray-600">
-          Encuentra el auto perfecto para ti
-          {!loading && total > 0 && (
-            <span className="ml-2 font-semibold text-blue-600">
-              ({total} vehículos disponibles)
-            </span>
-          )}
-        </p>
-      </div>
-
-      {/* Mobile filter toggle */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className="lg:hidden w-full flex items-center justify-center gap-2 py-3 mb-4 bg-white border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-      >
-        <SlidersHorizontal className="w-4 h-4" />
-        {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-      </button>
-
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar de filtros */}
-        <aside className={`w-full lg:w-1/4 flex-shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-          <div className="lg:hidden flex justify-end mb-2">
-            <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <VehicleFilters
-            makes={makes}
-            onFiltersChange={handleFiltersChange}
-            loading={loading}
-          />
-        </aside>
-
-        {/* Grid de vehículos */}
-        <div className="flex-1">
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-lg shadow-md p-4 animate-pulse"
-                >
-                  <div className="h-48 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2 w-2/3"></div>
-                  <div className="h-8 bg-gray-200 rounded mt-4"></div>
-                </div>
-              ))}
+    <div className="min-h-screen bg-[#f5f5f5]">
+      {/* Sticky top bar */}
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left: Count + Filters button */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowFilters(true)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-[#333] hover:bg-gray-50 transition-colors"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                Filtros
+                {activeFilterCount > 0 && (
+                  <span className="ml-1 bg-[#3498DB] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+              <span className="text-sm text-[#777] hidden sm:inline">
+                <span className="font-semibold text-[#333]">{total}</span> vehículos disponibles
+              </span>
             </div>
-          ) : vehicles.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-md">
-              <div className="text-6xl mb-4">🚗</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No se encontraron vehículos
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Intenta con otros filtros de búsqueda
-              </p>
+
+            {/* Right: Sort */}
+            <div className="relative">
+              <button
+                onClick={() => setShowSort(!showSort)}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-[#555] hover:text-[#333] transition-colors"
+              >
+                <span className="hidden sm:inline">Ordenar por:</span>
+                <span className="font-medium text-[#333]">{SORT_OPTIONS.find(o => o.value === sort)?.label}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSort ? 'rotate-180' : ''}`} />
+              </button>
+              {showSort && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowSort(false)} />
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 w-56">
+                    {SORT_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => handleSortChange(opt.value)}
+                        className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                          sort === opt.value ? 'text-[#3498DB] bg-[#3498DB]/5 font-medium' : 'text-[#333] hover:bg-gray-50'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Active filter chips */}
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              {filters.make && (
+                <Chip label={`Marca: ${filters.make}`} onRemove={() => handleFiltersChange({ ...filters, make: undefined, model: undefined })} />
+              )}
+              {filters.model && (
+                <Chip label={`Modelo: ${filters.model}`} onRemove={() => handleFiltersChange({ ...filters, model: undefined })} />
+              )}
+              {filters.transmission && (
+                <Chip label={`Transmisión: ${filters.transmission}`} onRemove={() => handleFiltersChange({ ...filters, transmission: undefined })} />
+              )}
+              {filters.fuelType && (
+                <Chip label={`Combustible: ${filters.fuelType}`} onRemove={() => handleFiltersChange({ ...filters, fuelType: undefined })} />
+              )}
+              {filters.vehicleType && (
+                <Chip label={`Tipo: ${filters.vehicleType}`} onRemove={() => handleFiltersChange({ ...filters, vehicleType: undefined })} />
+              )}
+              {(filters.price || filters.year || filters.mileage) && (
+                <Chip label="Rangos" onRemove={() => handleFiltersChange({ ...filters, price: undefined, year: undefined, mileage: undefined })} />
+              )}
               <button
                 onClick={() => handleFiltersChange({})}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="text-xs text-[#3498DB] font-medium hover:underline ml-1"
               >
-                Limpiar filtros
+                Borrar todo
               </button>
             </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                {vehicles.map((vehicle, index) => (
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    index={index}
-                  />
-                ))}
-              </div>
-
-              {/* Paginación */}
-              {total > 12 && (
-                <div className="flex justify-center gap-2">
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Anterior
-                  </button>
-                  <span className="px-4 py-2 bg-white border border-gray-300 rounded-md">
-                    Página {Math.ceil(total / 12) > 0 ? page : 0} de {Math.ceil(total / 12)}
-                  </span>
-                  <button
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={page >= Math.ceil(total / 12)}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Siguiente
-                  </button>
-                </div>
-              )}
-            </>
           )}
         </div>
       </div>
+
+      {/* Filter overlay panel */}
+      {showFilters && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setShowFilters(false)} />
+          <div className="fixed top-0 left-0 z-50 h-full w-80 max-w-[85vw] bg-white shadow-2xl animate-in slide-in-from-left duration-200">
+            <VehicleFilters
+              makes={makes}
+              models={models}
+              onFiltersChange={handleFiltersChange}
+              filters={filters}
+              total={total}
+              onClose={() => setShowFilters(false)}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Content */}
+      <div className="container mx-auto px-4 py-6">
+        {/* Mobile count */}
+        <p className="text-sm text-[#777] mb-4 sm:hidden">
+          <span className="font-semibold text-[#333]">{total}</span> vehículos disponibles
+        </p>
+
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white rounded overflow-hidden border border-gray-200 animate-pulse">
+                <div className="aspect-[16/10] bg-gray-200" />
+                <div className="p-3 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-3/4" />
+                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+                  <div className="h-5 bg-gray-200 rounded w-2/3" />
+                  <div className="h-3 bg-gray-200 rounded w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : vehicles.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded border border-gray-200">
+            <div className="text-5xl mb-4">🚗</div>
+            <h3 className="text-lg font-semibold text-[#333] mb-2">No se encontraron vehículos</h3>
+            <p className="text-sm text-[#777] mb-4">Intenta con otros filtros de búsqueda</p>
+            <button
+              onClick={() => handleFiltersChange({})}
+              className="px-6 py-2 bg-[#3498DB] text-white text-sm font-semibold rounded hover:bg-[#2980B9] transition-colors"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
+              {vehicles.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {total > 12 && (
+              <div className="flex justify-center items-center gap-2">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-4 py-2 bg-white border border-gray-200 rounded text-sm text-[#333] hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  Anterior
+                </button>
+                <span className="px-4 py-2 text-sm text-[#777]">
+                  {page} / {Math.ceil(total / 12)}
+                </span>
+                <button
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={page >= Math.ceil(total / 12)}
+                  className="px-4 py-2 bg-white border border-gray-200 rounded text-sm text-[#333] hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
+  );
+}
+
+function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#3498DB]/10 text-[#3498DB] text-xs font-medium rounded-full">
+      {label}
+      <button onClick={onRemove} className="hover:bg-[#3498DB]/20 rounded-full p-0.5">
+        <X className="w-3 h-3" />
+      </button>
+    </span>
   );
 }

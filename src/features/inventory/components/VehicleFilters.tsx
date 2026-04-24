@@ -1,13 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleCondition, VehicleType } from '../types/vehicle.types';
+import { ChevronDown, X } from 'lucide-react';
+import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleType } from '../types/vehicle.types';
 import { RangeSlider } from './RangeSlider';
 
 interface VehicleFiltersProps {
   makes: string[];
+  models: string[];
   onFiltersChange: (filters: VehicleFiltersType) => void;
-  loading?: boolean;
+  filters: VehicleFiltersType;
+  total: number;
+  onClose: () => void;
 }
 
 const YEAR_MIN = 2000;
@@ -25,192 +29,289 @@ const fmtPrice = (v: number) =>
 const fmtMileage = (v: number) =>
   `${(v / 1000).toFixed(0)}k km`;
 
-export function VehicleFilters({ makes, onFiltersChange, loading = false }: VehicleFiltersProps) {
-  const [filters, setFilters] = useState<VehicleFiltersType>({});
+const TRANSMISSION_OPTIONS: { value: VehicleTransmission; label: string }[] = [
+  { value: 'manual', label: 'Manual' },
+  { value: 'automatic', label: 'Automático' },
+  { value: 'cvt', label: 'CVT' },
+];
+
+const FUEL_OPTIONS: { value: VehicleFuelType; label: string }[] = [
+  { value: 'gasoline', label: 'Gasolina' },
+  { value: 'diesel', label: 'Diésel' },
+  { value: 'electric', label: 'Eléctrico' },
+  { value: 'hybrid', label: 'Híbrido' },
+];
+
+const TYPE_OPTIONS: { value: VehicleType; label: string }[] = [
+  { value: 'sedan', label: 'Sedán' },
+  { value: 'suv', label: 'SUV' },
+  { value: 'hatchback', label: 'Hatchback' },
+  { value: 'pickup', label: 'Pickup' },
+  { value: 'compacto', label: 'Compacto' },
+  { value: 'convertible', label: 'Convertible' },
+  { value: 'minivan', label: 'Minivan' },
+  { value: 'station_wagon', label: 'Station Wagon' },
+  { value: 'van', label: 'Van' },
+  { value: 'deportivo', label: 'Deportivo' },
+  { value: 'todo_terreno', label: 'Todo Terreno' },
+];
+
+function AccordionSection({ title, count, open, onToggle, children }: {
+  title: string;
+  count?: number;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b border-gray-100">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+      >
+        <span className="text-sm font-medium text-[#333]">{title}</span>
+        <div className="flex items-center gap-2">
+          {count !== undefined && count > 0 && (
+            <span className="text-[10px] text-[#3498DB] bg-[#3498DB]/10 px-1.5 py-0.5 rounded">
+              {count}
+            </span>
+          )}
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+      {open && (
+        <div className="px-4 pb-4">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function VehicleFilters({ makes, models, onFiltersChange, filters, total, onClose }: VehicleFiltersProps) {
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ marca: true });
+
+  const toggle = (key: string) => {
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const update = (patch: Partial<VehicleFiltersType>) => {
     const next = { ...filters, ...patch };
-    setFilters(next);
     onFiltersChange(next);
   };
 
   const clearFilters = () => {
-    setFilters({});
     onFiltersChange({});
   };
 
   const hasActiveFilters = Object.keys(filters).length > 0;
 
-  const selectClass = 'w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500';
-  const inputClass = 'w-full px-3 py-2 border border-gray-500 rounded-md bg-[#2a3a4a] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500';
+  const pillClass = (active: boolean) =>
+    `px-3 py-1.5 text-xs font-medium rounded-full border transition-colors cursor-pointer ${
+      active
+        ? 'bg-[#3498DB] text-white border-[#3498DB]'
+        : 'bg-white text-[#555] border-gray-200 hover:border-[#3498DB]/50'
+    }`;
 
   return (
-    <div className="rounded-lg shadow-md p-6 sticky top-4" style={{ backgroundColor: '#35475a' }}>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-white">Filtros</h2>
-        {hasActiveFilters && (
-          <button onClick={clearFilters} className="text-sm text-cyan-400 hover:text-cyan-300 font-medium">
-            Limpiar
+    <div className="h-full flex flex-col bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 shrink-0">
+        <h2 className="text-base font-bold text-[#333]">Filtros</h2>
+        <div className="flex items-center gap-2">
+          {hasActiveFilters && (
+            <button onClick={clearFilters} className="text-xs text-[#3498DB] font-medium hover:underline">
+              Borrar filtros
+            </button>
+          )}
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+            <X className="w-4 h-4 text-gray-500" />
           </button>
-        )}
+        </div>
       </div>
 
-      <div className="space-y-5">
-        {/* Búsqueda */}
-        <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Buscar</label>
-          <input
-            type="text"
-            placeholder="Marca, modelo, características..."
-            value={filters.search || ''}
-            onChange={(e) => update({ search: e.target.value || undefined })}
-            className={inputClass}
-          />
-        </div>
-
+      {/* Sections */}
+      <div className="flex-1 overflow-y-auto">
         {/* Marca */}
-        <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Marca</label>
-          <select
-            value={filters.make || ''}
-            onChange={(e) => update({ make: e.target.value || undefined })}
-            className={selectClass}
-          >
-            <option value="">Todas las marcas</option>
-            {makes.map(make => <option key={make} value={make}>{make}</option>)}
-          </select>
-        </div>
+        <AccordionSection
+          title="Marca"
+          count={filters.make ? 1 : undefined}
+          open={!!openSections.marca}
+          onToggle={() => toggle('marca')}
+        >
+          <div className="flex flex-wrap gap-1.5">
+            {makes.map(make => (
+              <button
+                key={make}
+                onClick={() => update({ make: filters.make === make ? undefined : make, model: undefined })}
+                className={pillClass(filters.make === make)}
+              >
+                {make}
+              </button>
+            ))}
+          </div>
+        </AccordionSection>
 
         {/* Modelo */}
-        {filters.make && (
-          <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Modelo</label>
-            <input
-              type="text"
-              placeholder="Ej: Corolla, Civic..."
-              value={filters.model || ''}
-              onChange={(e) => update({ model: e.target.value || undefined })}
-              className={inputClass}
-            />
-          </div>
+        {filters.make && models.length > 0 && (
+          <AccordionSection
+            title="Modelo"
+            count={filters.model ? 1 : undefined}
+            open={!!openSections.modelo}
+            onToggle={() => toggle('modelo')}
+          >
+            <div className="flex flex-wrap gap-1.5">
+              {models.map(model => (
+                <button
+                  key={model}
+                  onClick={() => update({ model: filters.model === model ? undefined : model })}
+                  className={pillClass(filters.model === model)}
+                >
+                  {model}
+                </button>
+              ))}
+            </div>
+          </AccordionSection>
         )}
 
-        {/* Año */}
-        <RangeSlider
-          label="Año"
-          min={YEAR_MIN}
-          max={YEAR_MAX}
-          step={1}
-          value={{
-            min: filters.year?.min ?? YEAR_MIN,
-            max: filters.year?.max ?? YEAR_MAX,
-          }}
-          onChange={(v) => update({
-            year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
-          })}
-          formatLabel={(v) => String(v)}
-        />
-
         {/* Precio */}
-        <RangeSlider
-          label="Precio (MXN)"
-          min={PRICE_MIN}
-          max={PRICE_MAX}
-          step={PRICE_STEP}
-          value={{
-            min: filters.price?.min ?? PRICE_MIN,
-            max: filters.price?.max ?? PRICE_MAX,
-          }}
-          onChange={(v) => update({
-            price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
-          })}
-          formatLabel={fmtPrice}
-        />
+        <AccordionSection
+          title="Precio"
+          count={filters.price ? 1 : undefined}
+          open={!!openSections.precio}
+          onToggle={() => toggle('precio')}
+        >
+          <RangeSlider
+            label="Precio (MXN)"
+            min={PRICE_MIN}
+            max={PRICE_MAX}
+            step={PRICE_STEP}
+            value={{
+              min: filters.price?.min ?? PRICE_MIN,
+              max: filters.price?.max ?? PRICE_MAX,
+            }}
+            onChange={(v) => update({
+              price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
+            })}
+            formatLabel={fmtPrice}
+          />
+        </AccordionSection>
 
         {/* Kilometraje */}
-        <RangeSlider
-          label="Kilometraje"
-          min={MILEAGE_MIN}
-          max={MILEAGE_MAX}
-          step={MILEAGE_STEP}
-          value={{
-            min: filters.mileage?.min ?? MILEAGE_MIN,
-            max: filters.mileage?.max ?? MILEAGE_MAX,
-          }}
-          onChange={(v) => update({
-            mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
-          })}
-          formatLabel={fmtMileage}
-        />
+        <AccordionSection
+          title="Kilometraje"
+          count={filters.mileage ? 1 : undefined}
+          open={!!openSections.kilometraje}
+          onToggle={() => toggle('kilometraje')}
+        >
+          <RangeSlider
+            label="Kilometraje"
+            min={MILEAGE_MIN}
+            max={MILEAGE_MAX}
+            step={MILEAGE_STEP}
+            value={{
+              min: filters.mileage?.min ?? MILEAGE_MIN,
+              max: filters.mileage?.max ?? MILEAGE_MAX,
+            }}
+            onChange={(v) => update({
+              mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
+            })}
+            formatLabel={fmtMileage}
+          />
+        </AccordionSection>
+
+        {/* Año */}
+        <AccordionSection
+          title="Año"
+          count={filters.year ? 1 : undefined}
+          open={!!openSections.anio}
+          onToggle={() => toggle('anio')}
+        >
+          <RangeSlider
+            label="Año"
+            min={YEAR_MIN}
+            max={YEAR_MAX}
+            step={1}
+            value={{
+              min: filters.year?.min ?? YEAR_MIN,
+              max: filters.year?.max ?? YEAR_MAX,
+            }}
+            onChange={(v) => update({
+              year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
+            })}
+            formatLabel={(v) => String(v)}
+          />
+        </AccordionSection>
 
         {/* Transmisión */}
-        <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Transmisión</label>
-          <select
-            value={filters.transmission || ''}
-            onChange={(e) => update({ transmission: (e.target.value as VehicleTransmission) || undefined })}
-            className={selectClass}
-          >
-            <option value="">Todas</option>
-            <option value="automatic">Automática</option>
-            <option value="manual">Manual</option>
-            <option value="cvt">CVT</option>
-          </select>
-        </div>
+        <AccordionSection
+          title="Transmisión"
+          count={filters.transmission ? 1 : undefined}
+          open={!!openSections.transmision}
+          onToggle={() => toggle('transmision')}
+        >
+          <div className="flex flex-wrap gap-1.5">
+            {TRANSMISSION_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => update({ transmission: filters.transmission === opt.value ? undefined : opt.value })}
+                className={pillClass(filters.transmission === opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </AccordionSection>
 
         {/* Combustible */}
-        <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Combustible</label>
-          <select
-            value={filters.fuelType || ''}
-            onChange={(e) => update({ fuelType: (e.target.value as VehicleFuelType) || undefined })}
-            className={selectClass}
-          >
-            <option value="">Todos</option>
-            <option value="gasoline">Gasolina</option>
-            <option value="diesel">Diésel</option>
-            <option value="electric">Eléctrico</option>
-            <option value="hybrid">Híbrido</option>
-          </select>
-        </div>
-
-        {/* Condición */}
-        <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Condición</label>
-          <select
-            value={filters.condition || ''}
-            onChange={(e) => update({ condition: (e.target.value as VehicleCondition) || undefined })}
-            className={selectClass}
-          >
-            <option value="">Todas</option>
-            <option value="new">Nuevo</option>
-            <option value="semi-new">Seminuevo</option>
-            <option value="certified">Certificado</option>
-          </select>
-        </div>
+        <AccordionSection
+          title="Combustible"
+          count={filters.fuelType ? 1 : undefined}
+          open={!!openSections.combustible}
+          onToggle={() => toggle('combustible')}
+        >
+          <div className="flex flex-wrap gap-1.5">
+            {FUEL_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => update({ fuelType: filters.fuelType === opt.value ? undefined : opt.value })}
+                className={pillClass(filters.fuelType === opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </AccordionSection>
 
         {/* Tipo de vehículo */}
-        <div>
-          <label className="block text-sm font-medium text-gray-200 mb-1">Tipo de vehículo</label>
-          <select
-            value={filters.vehicleType || ''}
-            onChange={(e) => update({ vehicleType: (e.target.value as VehicleType) || undefined })}
-            className={selectClass}
-          >
-            <option value="">Todos</option>
-            <option value="sedan">Sedán</option>
-            <option value="suv">SUV</option>
-            <option value="compacto">Compacto</option>
-            <option value="convertible">Convertible</option>
-            <option value="hatchback">Hatchback</option>
-            <option value="minivan">Minivan</option>
-            <option value="pickup">Pickup</option>
-            <option value="station_wagon">Station Wagon</option>
-            <option value="van">Van</option>
-            <option value="deportivo">Deportivo</option>
-            <option value="todo_terreno">Todo Terreno</option>
-          </select>
-        </div>
+        <AccordionSection
+          title="Tipo de vehículo"
+          count={filters.vehicleType ? 1 : undefined}
+          open={!!openSections.tipo}
+          onToggle={() => toggle('tipo')}
+        >
+          <div className="flex flex-wrap gap-1.5">
+            {TYPE_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => update({ vehicleType: filters.vehicleType === opt.value ? undefined : opt.value })}
+                className={pillClass(filters.vehicleType === opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </AccordionSection>
+      </div>
+
+      {/* Apply button */}
+      <div className="p-4 border-t border-gray-200 shrink-0">
+        <button
+          onClick={onClose}
+          className="w-full py-2.5 bg-[#3498DB] text-white text-sm font-semibold rounded hover:bg-[#2980B9] transition-colors"
+        >
+          Ver {total} vehículos
+        </button>
       </div>
     </div>
   );
