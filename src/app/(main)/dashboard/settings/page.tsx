@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { SettingsForm } from '@/features/auth/components/SettingsForm'
 import { CalculatorSettingsForm } from '@/features/auth/components/CalculatorSettingsForm'
+import { ScheduleSettingsForm } from '@/features/auth/components/ScheduleSettingsForm'
 import Link from 'next/link'
 import { SettingsTabs } from './SettingsTabs'
 
@@ -55,6 +56,9 @@ export default async function SettingsPage() {
                 enganche_porcentaje: profile?.enganche_porcentaje ?? null,
               }}
             />
+          }
+          scheduleTab={
+            <ScheduleSettingsForm schedule={profile?.schedule || null} />
           }
         />
       </main>

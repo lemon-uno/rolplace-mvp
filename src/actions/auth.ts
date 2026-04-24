@@ -137,3 +137,46 @@ export async function getContactPhone(): Promise<string | null> {
     .single()
   return data?.phone || data?.whatsapp || null
 }
+
+export async function updateSchedule(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Not authenticated' }
+
+  const scheduleRaw = formData.get('schedule') as string
+  if (!scheduleRaw) return { error: 'Horarios no proporcionados' }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ schedule: JSON.parse(scheduleRaw), updated_at: new Date().toISOString() })
+    .eq('id', user.id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/', 'layout')
+  return { success: true }
+}
+
+export async function getOwnerSchedule(carId: string): Promise<Record<string, { start: string; end: string; closed: boolean }> | null> {
+  const supabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  const { data: car } = await supabase
+    .from('cars')
+    .select('user_id')
+    .eq('id', carId)
+    .single()
+
+  if (!car) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('schedule')
+    .eq('id', car.user_id)
+    .single()
+
+  return profile?.schedule || null
+}

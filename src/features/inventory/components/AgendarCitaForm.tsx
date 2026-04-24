@@ -1,8 +1,15 @@
 'use client'
 
-import { useState, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { X, Check, ChevronRight, ChevronLeft } from 'lucide-react'
 import { submitAgendarCita } from '@/actions/agendar-cita'
+import { getOwnerSchedule } from '@/actions/auth'
+
+interface DaySchedule {
+  start: string
+  end: string
+  closed: boolean
+}
 
 interface AgendarCitaFormProps {
   vehicleId: string
@@ -48,8 +55,18 @@ function generateSlots(start: string, end: string): string[] {
   return slots
 }
 
-const MORNING_SLOTS = generateSlots('10:00', '13:45')
-const AFTERNOON_SLOTS = generateSlots('14:00', '18:00')
+// Start 1 hour after configured start, end at configured end
+function slotsFromSchedule(daySchedule: DaySchedule): { morning: string[]; afternoon: string[] } {
+  if (daySchedule.closed) return { morning: [], afternoon: [] }
+  const [sh, sm] = daySchedule.start.split(':').map(Number)
+  const adjustedStart = `${String(sh + 1).padStart(2, '0')}:${String(sm).padStart(2, '0')}`
+  const allSlots = generateSlots(adjustedStart, daySchedule.end)
+  const morning = allSlots.filter(s => parseInt(s.split(':')[0]) < 14)
+  const afternoon = allSlots.filter(s => parseInt(s.split(':')[0]) >= 14)
+  return { morning, afternoon }
+}
+
+const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 const inputBase = "w-full px-3 py-2 border border-[#E0E0E0] rounded text-sm text-[#2C3E50] placeholder-[#95A5A6] focus:outline-none focus:border-[#3498DB] focus:ring-1 focus:ring-[#3498DB]/20"
 
@@ -60,7 +77,12 @@ export function AgendarCitaForm({ vehicleId, vehicleTitle, open, onClose }: Agen
   const [success, setSuccess] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [schedule, setSchedule] = useState<Record<string, DaySchedule> | null>(null)
   const [form, setForm] = useState({ contactName: '', contactEmail: '', contactPhone: '' })
+
+  useEffect(() => {
+    if (open) getOwnerSchedule(vehicleId).then(setSchedule)
+  }, [open, vehicleId])
 
   const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }))
@@ -158,73 +180,92 @@ export function AgendarCitaForm({ vehicleId, vehicleTitle, open, onClose }: Agen
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-5 pb-4">
-              {step === 1 && (
-                <div className="space-y-4">
-                  {/* Date selection */}
-                  <div>
-                    <label className="block text-xs font-medium text-[#7F8C8D] mb-2">Selecciona un día</label>
-                    <div className="flex gap-2 overflow-x-auto pb-1">
-                      {weekDates.map((d, i) => {
-                        const isSelected = selectedDate && d.date.toDateString() === selectedDate.toDateString()
-                        return (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => { setSelectedDate(d.date); setError(null) }}
-                            className={`flex-shrink-0 w-14 py-2 rounded-lg border text-center transition-colors
-                              ${isSelected
-                                ? 'bg-[#3498DB] text-white border-[#3498DB]'
-                                : 'bg-white text-[#2C3E50] border-[#E0E0E0] hover:border-[#3498DB]/50'}`}
-                          >
-                            <p className="text-[10px] font-medium">{d.dayName}</p>
-                            <p className="text-lg font-bold">{d.dayNum}</p>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
+              {step === 1 && (() => {
+                const getDaySchedule = (date: Date) => {
+                  const key = DAY_KEYS[date.getDay()]
+                  return schedule?.[key] ?? null
+                }
+                const isDayClosed = (date: Date) => getDaySchedule(date)?.closed ?? false
+                const availableDates = weekDates.filter(d => !isDayClosed(d.date))
 
-                  {/* Morning slots */}
-                  <div>
-                    <label className="block text-xs font-medium text-[#7F8C8D] mb-2">Por la mañana</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {MORNING_SLOTS.map(t => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => { setSelectedTime(t); setError(null) }}
-                          className={`py-2 rounded text-xs font-medium border transition-colors
-                            ${selectedTime === t
-                              ? 'bg-[#3498DB] text-white border-[#3498DB]'
-                              : 'bg-white text-[#2C3E50] border-[#E0E0E0] hover:border-[#3498DB]/50'}`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                const selectedDaySchedule = selectedDate ? getDaySchedule(selectedDate) : null
+                const { morning: morningSlots, afternoon: afternoonSlots } = selectedDaySchedule
+                  ? slotsFromSchedule(selectedDaySchedule)
+                  : { morning: [] as string[], afternoon: [] as string[] }
 
-                  {/* Afternoon slots */}
-                  <div>
-                    <label className="block text-xs font-medium text-[#7F8C8D] mb-2">Por la tarde</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {AFTERNOON_SLOTS.map(t => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => { setSelectedTime(t); setError(null) }}
-                          className={`py-2 rounded text-xs font-medium border transition-colors
-                            ${selectedTime === t
-                              ? 'bg-[#3498DB] text-white border-[#3498DB]'
-                              : 'bg-white text-[#2C3E50] border-[#E0E0E0] hover:border-[#3498DB]/50'}`}
-                        >
-                          {t}
-                        </button>
-                      ))}
+                return (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-medium text-[#7F8C8D] mb-2">Selecciona un día</label>
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {availableDates.map((d, i) => {
+                          const isSelected = selectedDate && d.date.toDateString() === selectedDate.toDateString()
+                          return (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => { setSelectedDate(d.date); setSelectedTime(null); setError(null) }}
+                              className={`flex-shrink-0 w-14 py-2 rounded-lg border text-center transition-colors
+                                ${isSelected
+                                  ? 'bg-[#3498DB] text-white border-[#3498DB]'
+                                  : 'bg-white text-[#2C3E50] border-[#E0E0E0] hover:border-[#3498DB]/50'}`}
+                            >
+                              <p className="text-[10px] font-medium">{d.dayName}</p>
+                              <p className="text-lg font-bold">{d.dayNum}</p>
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
+
+                    {selectedDate && morningSlots.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-medium text-[#7F8C8D] mb-2">Por la mañana</label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {morningSlots.map(t => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => { setSelectedTime(t); setError(null) }}
+                              className={`py-2 rounded text-xs font-medium border transition-colors
+                                ${selectedTime === t
+                                  ? 'bg-[#3498DB] text-white border-[#3498DB]'
+                                  : 'bg-white text-[#2C3E50] border-[#E0E0E0] hover:border-[#3498DB]/50'}`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedDate && afternoonSlots.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-medium text-[#7F8C8D] mb-2">Por la tarde</label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {afternoonSlots.map(t => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => { setSelectedTime(t); setError(null) }}
+                              className={`py-2 rounded text-xs font-medium border transition-colors
+                                ${selectedTime === t
+                                  ? 'bg-[#3498DB] text-white border-[#3498DB]'
+                                  : 'bg-white text-[#2C3E50] border-[#E0E0E0] hover:border-[#3498DB]/50'}`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedDate && morningSlots.length === 0 && afternoonSlots.length === 0 && (
+                      <p className="text-xs text-[#95A5A6] text-center py-4">No hay horarios disponibles para este día.</p>
+                    )}
                   </div>
-                </div>
-              )}
+                )
+              })()}
 
               {step === 2 && (
                 <div className="space-y-4">
