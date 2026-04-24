@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Search, Check } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleType } from '../types/vehicle.types';
 import { RangeSlider } from './RangeSlider';
 
@@ -76,6 +76,12 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
     setPendingFilters(prev => ({ ...prev, ...patch }));
   };
 
+  const toggleArrayItem = (field: keyof Pick<VehicleFiltersType, 'make' | 'model' | 'transmission' | 'fuelType' | 'vehicleType'>, value: string) => {
+    const current = (pendingFilters[field] as string[] | undefined) || [];
+    const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
+    updatePending({ [field]: next.length > 0 ? next : undefined });
+  };
+
   const apply = () => {
     onFiltersChange(pendingFilters);
     setOpenSection(null);
@@ -112,59 +118,66 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
     </button>
   );
 
+  const hasActive = (field: keyof VehicleFiltersType) => {
+    const val = filters[field];
+    return Array.isArray(val) ? val.length > 0 : val !== undefined;
+  };
+
   return (
     <div>
-      {/* Filter bar — horizontal */}
-      <div className="flex items-center bg-[#f8f8f8] border-b border-gray-200 overflow-x-auto">
-        <button onClick={() => toggle('marca')} className={barClass('marca')}>
-          Marca
-          {(filters.make) && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'marca' ? 'rotate-180' : ''}`} />
-        </button>
-
-        {filters.make && (
-          <button onClick={() => toggle('modelo')} className={barClass('modelo')}>
-            Modelo
-            {filters.model && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'modelo' ? 'rotate-180' : ''}`} />
+      {/* Filter bar — centered horizontal */}
+      <div className="flex items-center justify-center bg-[#f8f8f8] border-b border-gray-200 overflow-x-auto">
+        <div className="flex items-center">
+          <button onClick={() => toggle('marca')} className={barClass('marca')}>
+            Marca
+            {hasActive('make') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'marca' ? 'rotate-180' : ''}`} />
           </button>
-        )}
 
-        <button onClick={() => toggle('precio')} className={barClass('precio')}>
-          Precio
-          {filters.price && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'precio' ? 'rotate-180' : ''}`} />
-        </button>
+          {hasActive('make') && (
+            <button onClick={() => toggle('modelo')} className={barClass('modelo')}>
+              Modelo
+              {hasActive('model') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'modelo' ? 'rotate-180' : ''}`} />
+            </button>
+          )}
 
-        <button onClick={() => toggle('kilometraje')} className={barClass('kilometraje')}>
-          Kilometraje
-          {filters.mileage && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'kilometraje' ? 'rotate-180' : ''}`} />
-        </button>
+          <button onClick={() => toggle('precio')} className={barClass('precio')}>
+            Precio
+            {hasActive('price') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'precio' ? 'rotate-180' : ''}`} />
+          </button>
 
-        <button onClick={() => toggle('anio')} className={barClass('anio')}>
-          Año
-          {filters.year && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'anio' ? 'rotate-180' : ''}`} />
-        </button>
+          <button onClick={() => toggle('kilometraje')} className={barClass('kilometraje')}>
+            Kilometraje
+            {hasActive('mileage') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'kilometraje' ? 'rotate-180' : ''}`} />
+          </button>
 
-        <button onClick={() => toggle('transmision')} className={barClass('transmision')}>
-          Transmisión
-          {filters.transmission && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'transmision' ? 'rotate-180' : ''}`} />
-        </button>
+          <button onClick={() => toggle('anio')} className={barClass('anio')}>
+            Año
+            {hasActive('year') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'anio' ? 'rotate-180' : ''}`} />
+          </button>
 
-        <button onClick={() => toggle('combustible')} className={barClass('combustible')}>
-          Combustible
-          {filters.fuelType && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'combustible' ? 'rotate-180' : ''}`} />
-        </button>
+          <button onClick={() => toggle('transmision')} className={barClass('transmision')}>
+            Transmisión
+            {hasActive('transmission') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'transmision' ? 'rotate-180' : ''}`} />
+          </button>
 
-        <button onClick={() => toggle('tipo')} className={`${barClass('tipo')} border-r-0`}>
-          Tipo
-          {filters.vehicleType && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'tipo' ? 'rotate-180' : ''}`} />
-        </button>
+          <button onClick={() => toggle('combustible')} className={barClass('combustible')}>
+            Combustible
+            {hasActive('fuelType') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'combustible' ? 'rotate-180' : ''}`} />
+          </button>
+
+          <button onClick={() => toggle('tipo')} className={`${barClass('tipo')} border-r-0`}>
+            Tipo
+            {hasActive('vehicleType') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'tipo' ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Expanded dropdown panel */}
@@ -179,8 +192,8 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
                 <div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0 max-h-64 overflow-y-auto">
                     {makes.map(make => (
-                      <div key={make} onClick={() => updatePending({ make: pendingFilters.make === make ? undefined : make, model: undefined })}>
-                        {checkboxItem(make, makeCounts[make] || 0, pendingFilters.make === make, () => {})}
+                      <div key={make} onClick={() => toggleArrayItem('make', make)}>
+                        {checkboxItem(make, makeCounts[make] || 0, (pendingFilters.make || []).includes(make), () => {})}
                       </div>
                     ))}
                   </div>
@@ -195,8 +208,8 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
                     <>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0 max-h-64 overflow-y-auto">
                         {models.map(model => (
-                          <div key={model} onClick={() => updatePending({ model: pendingFilters.model === model ? undefined : model })}>
-                            {checkboxItem(model, modelCounts[model] || 0, pendingFilters.model === model, () => {})}
+                          <div key={model} onClick={() => toggleArrayItem('model', model)}>
+                            {checkboxItem(model, modelCounts[model] || 0, (pendingFilters.model || []).includes(model), () => {})}
                           </div>
                         ))}
                       </div>
@@ -274,19 +287,11 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
               {/* Transmisión */}
               {openSection === 'transmision' && (
                 <div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0">
                     {TRANSMISSION_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        onClick={() => updatePending({ transmission: pendingFilters.transmission === opt.value ? undefined : opt.value })}
-                        className={`px-4 py-2 text-sm rounded-full border transition-colors ${
-                          pendingFilters.transmission === opt.value
-                            ? 'bg-[#3498DB] text-white border-[#3498DB]'
-                            : 'bg-white text-[#333] border-gray-300 hover:border-[#3498DB]/50'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
+                      <div key={opt.value} onClick={() => toggleArrayItem('transmission', opt.value)}>
+                        {checkboxItem(opt.label, 0, (pendingFilters.transmission || []).includes(opt.value), () => {})}
+                      </div>
                     ))}
                   </div>
                   <div className="mt-4 max-w-xs">{applyBtn}</div>
@@ -296,19 +301,11 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
               {/* Combustible */}
               {openSection === 'combustible' && (
                 <div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0">
                     {FUEL_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        onClick={() => updatePending({ fuelType: pendingFilters.fuelType === opt.value ? undefined : opt.value })}
-                        className={`px-4 py-2 text-sm rounded-full border transition-colors ${
-                          pendingFilters.fuelType === opt.value
-                            ? 'bg-[#3498DB] text-white border-[#3498DB]'
-                            : 'bg-white text-[#333] border-gray-300 hover:border-[#3498DB]/50'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
+                      <div key={opt.value} onClick={() => toggleArrayItem('fuelType', opt.value)}>
+                        {checkboxItem(opt.label, 0, (pendingFilters.fuelType || []).includes(opt.value), () => {})}
+                      </div>
                     ))}
                   </div>
                   <div className="mt-4 max-w-xs">{applyBtn}</div>
@@ -318,19 +315,11 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
               {/* Tipo */}
               {openSection === 'tipo' && (
                 <div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0">
                     {TYPE_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        onClick={() => updatePending({ vehicleType: pendingFilters.vehicleType === opt.value ? undefined : opt.value })}
-                        className={`px-4 py-2 text-sm rounded-full border transition-colors ${
-                          pendingFilters.vehicleType === opt.value
-                            ? 'bg-[#3498DB] text-white border-[#3498DB]'
-                            : 'bg-white text-[#333] border-gray-300 hover:border-[#3498DB]/50'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
+                      <div key={opt.value} onClick={() => toggleArrayItem('vehicleType', opt.value)}>
+                        {checkboxItem(opt.label, 0, (pendingFilters.vehicleType || []).includes(opt.value), () => {})}
+                      </div>
                     ))}
                   </div>
                   <div className="mt-4 max-w-xs">{applyBtn}</div>

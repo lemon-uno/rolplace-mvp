@@ -124,18 +124,16 @@ export class InventoryService {
     // Filtrar por estado (solo disponibles por defecto)
     vehicles = vehicles.filter(v => v.status === 'available');
 
-    // Filtrar por marca
-    if (filters.make) {
-      vehicles = vehicles.filter(v =>
-        v.make.toLowerCase() === filters.make?.toLowerCase()
-      );
+    // Filtrar por marca(s)
+    if (filters.make && filters.make.length > 0) {
+      const makes = filters.make.map(m => m.toLowerCase());
+      vehicles = vehicles.filter(v => makes.includes(v.make.toLowerCase()));
     }
 
-    // Filtrar por modelo
-    if (filters.model) {
-      vehicles = vehicles.filter(v =>
-        v.model.toLowerCase() === filters.model?.toLowerCase()
-      );
+    // Filtrar por modelo(s)
+    if (filters.model && filters.model.length > 0) {
+      const models = filters.model.map(m => m.toLowerCase());
+      vehicles = vehicles.filter(v => models.includes(v.model.toLowerCase()));
     }
 
     // Filtrar por año
@@ -154,14 +152,14 @@ export class InventoryService {
       vehicles = vehicles.filter(v => v.price <= filters.price!.max!);
     }
 
-    // Filtrar por transmisión
-    if (filters.transmission) {
-      vehicles = vehicles.filter(v => v.transmission === filters.transmission);
+    // Filtrar por transmisión(es)
+    if (filters.transmission && filters.transmission.length > 0) {
+      vehicles = vehicles.filter(v => filters.transmission!.includes(v.transmission));
     }
 
-    // Filtrar por combustible
-    if (filters.fuelType) {
-      vehicles = vehicles.filter(v => v.fuelType === filters.fuelType);
+    // Filtrar por combustible(s)
+    if (filters.fuelType && filters.fuelType.length > 0) {
+      vehicles = vehicles.filter(v => filters.fuelType!.includes(v.fuelType));
     }
 
     // Filtrar por condición
@@ -169,9 +167,9 @@ export class InventoryService {
       vehicles = vehicles.filter(v => v.condition === filters.condition);
     }
 
-    // Filtrar por tipo de vehículo
-    if (filters.vehicleType) {
-      vehicles = vehicles.filter(v => v.vehicleType === filters.vehicleType);
+    // Filtrar por tipo(s) de vehículo
+    if (filters.vehicleType && filters.vehicleType.length > 0) {
+      vehicles = vehicles.filter(v => filters.vehicleType!.includes(v.vehicleType));
     }
 
     // Filtrar por kilometraje
@@ -279,11 +277,13 @@ export class InventoryService {
   /**
    * Obtiene modelos por marca
    */
-  static async getModelsByMake(make: string): Promise<string[]> {
+  static async getModelsByMake(makes: string[]): Promise<string[]> {
+    if (makes.length === 0) return [];
     const cars = await getCars();
+    const lowerMakes = makes.map(m => m.toLowerCase());
     const models = Array.from(new Set(
       cars
-        .filter(car => car.make?.toLowerCase() === make.toLowerCase())
+        .filter(car => car.make && lowerMakes.includes(car.make.toLowerCase()))
         .map(car => car.model)
         .filter((model): model is string => model !== null)
     ));

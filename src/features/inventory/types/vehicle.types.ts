@@ -70,16 +70,16 @@ export interface Vehicle {
 }
 
 export interface VehicleFilters {
-  make?: string;
-  model?: string;
+  make?: string[];
+  model?: string[];
   year?: { min?: number; max?: number };
   price?: { min?: number; max?: number };
-  transmission?: VehicleTransmission;
-  fuelType?: VehicleFuelType;
+  transmission?: VehicleTransmission[];
+  fuelType?: VehicleFuelType[];
   condition?: VehicleCondition;
-  vehicleType?: VehicleType;
+  vehicleType?: VehicleType[];
   mileage?: { min?: number; max?: number };
-  search?: string;     // Búsqueda general
+  search?: string;
 }
 
 export interface VehicleListResponse {

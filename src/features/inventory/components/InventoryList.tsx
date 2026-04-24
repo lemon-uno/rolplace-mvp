@@ -35,7 +35,7 @@ export function InventoryList() {
   }, [filters, page]);
 
   useEffect(() => {
-    if (filters.make) {
+    if (filters.make && filters.make.length > 0) {
       InventoryService.getModelsByMake(filters.make).then(setModels);
     } else {
       setModels([]);
@@ -87,7 +87,9 @@ export function InventoryList() {
     }
   };
 
-  const activeFilterCount = Object.values(filters).filter(v => v !== undefined && v !== '').length;
+  const activeFilterCount = Object.values(filters).filter(v =>
+    Array.isArray(v) ? v.length > 0 : v !== undefined
+  ).length;
 
   const makeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -151,20 +153,20 @@ export function InventoryList() {
           {/* Active filter chips */}
           {activeFilterCount > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
-              {filters.make && (
-                <Chip label={`Marca: ${filters.make}`} onRemove={() => handleFiltersChange({ ...filters, make: undefined, model: undefined })} />
+              {filters.make && filters.make.length > 0 && (
+                <Chip label={`Marca: ${filters.make.join(', ')}`} onRemove={() => handleFiltersChange({ ...filters, make: undefined, model: undefined })} />
               )}
-              {filters.model && (
-                <Chip label={`Modelo: ${filters.model}`} onRemove={() => handleFiltersChange({ ...filters, model: undefined })} />
+              {filters.model && filters.model.length > 0 && (
+                <Chip label={`Modelo: ${filters.model.join(', ')}`} onRemove={() => handleFiltersChange({ ...filters, model: undefined })} />
               )}
-              {filters.transmission && (
-                <Chip label={`Transmisión: ${filters.transmission}`} onRemove={() => handleFiltersChange({ ...filters, transmission: undefined })} />
+              {filters.transmission && filters.transmission.length > 0 && (
+                <Chip label={`Transmisión: ${filters.transmission.join(', ')}`} onRemove={() => handleFiltersChange({ ...filters, transmission: undefined })} />
               )}
-              {filters.fuelType && (
-                <Chip label={`Combustible: ${filters.fuelType}`} onRemove={() => handleFiltersChange({ ...filters, fuelType: undefined })} />
+              {filters.fuelType && filters.fuelType.length > 0 && (
+                <Chip label={`Combustible: ${filters.fuelType.join(', ')}`} onRemove={() => handleFiltersChange({ ...filters, fuelType: undefined })} />
               )}
-              {filters.vehicleType && (
-                <Chip label={`Tipo: ${filters.vehicleType}`} onRemove={() => handleFiltersChange({ ...filters, vehicleType: undefined })} />
+              {filters.vehicleType && filters.vehicleType.length > 0 && (
+                <Chip label={`Tipo: ${filters.vehicleType.join(', ')}`} onRemove={() => handleFiltersChange({ ...filters, vehicleType: undefined })} />
               )}
               {(filters.price || filters.year || filters.mileage) && (
                 <Chip label="Rangos" onRemove={() => handleFiltersChange({ ...filters, price: undefined, year: undefined, mileage: undefined })} />
