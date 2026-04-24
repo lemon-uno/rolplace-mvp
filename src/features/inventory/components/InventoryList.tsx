@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { VehicleFilters as VehicleFiltersType } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { VehicleCard } from './VehicleCard';
 import { VehicleFilters } from './VehicleFilters';
-import { SlidersHorizontal, ChevronDown, X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 
 type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'year_asc' | 'year_desc' | 'km_asc';
 
@@ -27,7 +27,6 @@ export function InventoryList() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<VehicleFiltersType>({});
   const [sort, setSort] = useState<SortOption>('newest');
-  const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort] = useState(false);
 
   useEffect(() => {
@@ -90,32 +89,35 @@ export function InventoryList() {
 
   const activeFilterCount = Object.values(filters).filter(v => v !== undefined && v !== '').length;
 
+  const makeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      counts[v.make] = (counts[v.make] || 0) + 1;
+    });
+    return counts;
+  }, [vehicles]);
+
+  const modelCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      if (v.model) counts[v.model] = (counts[v.model] || 0) + 1;
+    });
+    return counts;
+  }, [vehicles]);
+
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
-      {/* Sticky top bar */}
+      {/* Sticky top bar with sort + active chips */}
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between gap-3">
-            {/* Left: Count + Filters button */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowFilters(true)}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded text-sm font-medium text-[#333] hover:bg-gray-50 transition-colors"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                Filtros
-                {activeFilterCount > 0 && (
-                  <span className="ml-1 bg-[#3498DB] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
               <span className="text-sm text-[#777] hidden sm:inline">
                 <span className="font-semibold text-[#333]">{total}</span> vehículos disponibles
               </span>
             </div>
 
-            {/* Right: Sort */}
+            {/* Sort */}
             <div className="relative">
               <button
                 onClick={() => setShowSort(!showSort)}
@@ -178,22 +180,16 @@ export function InventoryList() {
         </div>
       </div>
 
-      {/* Filter overlay panel */}
-      {showFilters && (
-        <>
-          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setShowFilters(false)} />
-          <div className="fixed top-0 left-0 z-50 h-full w-80 max-w-[85vw] bg-white shadow-2xl animate-in slide-in-from-left duration-200">
-            <VehicleFilters
-              makes={makes}
-              models={models}
-              onFiltersChange={handleFiltersChange}
-              filters={filters}
-              total={total}
-              onClose={() => setShowFilters(false)}
-            />
-          </div>
-        </>
-      )}
+      {/* Horizontal filter bar — above the grid */}
+      <VehicleFilters
+        makes={makes}
+        makeCounts={makeCounts}
+        models={models}
+        modelCounts={modelCounts}
+        onFiltersChange={handleFiltersChange}
+        filters={filters}
+        total={total}
+      />
 
       {/* Content */}
       <div className="container mx-auto px-4 py-6">

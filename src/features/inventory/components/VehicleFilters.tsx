@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown, Search, Check } from 'lucide-react';
 import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleType } from '../types/vehicle.types';
 import { RangeSlider } from './RangeSlider';
 
 interface VehicleFiltersProps {
   makes: string[];
+  makeCounts: Record<string, number>;
   models: string[];
+  modelCounts: Record<string, number>;
   onFiltersChange: (filters: VehicleFiltersType) => void;
   filters: VehicleFiltersType;
   total: number;
-  onClose: () => void;
 }
 
 const YEAR_MIN = 2000;
@@ -56,263 +57,289 @@ const TYPE_OPTIONS: { value: VehicleType; label: string }[] = [
   { value: 'todo_terreno', label: 'Todo Terreno' },
 ];
 
-function AccordionSection({ title, count, open, onToggle, children }: {
-  title: string;
-  count?: number;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="border-b border-gray-100">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
-      >
-        <span className="text-sm font-medium text-[#333]">{title}</span>
-        <div className="flex items-center gap-2">
-          {count !== undefined && count > 0 && (
-            <span className="text-[10px] text-[#3498DB] bg-[#3498DB]/10 px-1.5 py-0.5 rounded">
-              {count}
-            </span>
-          )}
-          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
-        </div>
-      </button>
-      {open && (
-        <div className="px-4 pb-4">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
+type FilterSection = 'marca' | 'modelo' | 'precio' | 'kilometraje' | 'anio' | 'transmision' | 'combustible' | 'tipo';
 
-export function VehicleFilters({ makes, models, onFiltersChange, filters, total, onClose }: VehicleFiltersProps) {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ marca: true });
+export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFiltersChange, filters, total }: VehicleFiltersProps) {
+  const [openSection, setOpenSection] = useState<FilterSection | null>(null);
+  const [pendingFilters, setPendingFilters] = useState<VehicleFiltersType>(filters);
 
-  const toggle = (key: string) => {
-    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggle = (section: FilterSection) => {
+    if (openSection === section) {
+      setOpenSection(null);
+    } else {
+      setPendingFilters(filters);
+      setOpenSection(section);
+    }
   };
 
-  const update = (patch: Partial<VehicleFiltersType>) => {
-    const next = { ...filters, ...patch };
-    onFiltersChange(next);
+  const updatePending = (patch: Partial<VehicleFiltersType>) => {
+    setPendingFilters(prev => ({ ...prev, ...patch }));
   };
 
-  const clearFilters = () => {
-    onFiltersChange({});
+  const apply = () => {
+    onFiltersChange(pendingFilters);
+    setOpenSection(null);
   };
 
-  const hasActiveFilters = Object.keys(filters).length > 0;
+  const close = () => {
+    setOpenSection(null);
+    setPendingFilters(filters);
+  };
 
-  const pillClass = (active: boolean) =>
-    `px-3 py-1.5 text-xs font-medium rounded-full border transition-colors cursor-pointer ${
-      active
-        ? 'bg-[#3498DB] text-white border-[#3498DB]'
-        : 'bg-white text-[#555] border-gray-200 hover:border-[#3498DB]/50'
+  const barClass = (section: FilterSection) =>
+    `flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-r border-gray-200 cursor-pointer select-none transition-colors whitespace-nowrap ${
+      openSection === section ? 'text-[#3498DB] bg-white' : 'text-[#333] hover:text-[#3498DB] hover:bg-white'
     }`;
 
-  return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 shrink-0">
-        <h2 className="text-base font-bold text-[#333]">Filtros</h2>
-        <div className="flex items-center gap-2">
-          {hasActiveFilters && (
-            <button onClick={clearFilters} className="text-xs text-[#3498DB] font-medium hover:underline">
-              Borrar filtros
-            </button>
-          )}
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
-            <X className="w-4 h-4 text-gray-500" />
-          </button>
-        </div>
+  const checkboxItem = (label: string, count: number, checked: boolean, onChange: () => void) => (
+    <label className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-gray-50 cursor-pointer text-sm text-[#333]">
+      <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+        checked ? 'bg-[#3498DB] border-[#3498DB]' : 'border-gray-300 bg-white'
+      }`}>
+        {checked && <Check className="w-3 h-3 text-white" />}
       </div>
+      <span className="flex-1">{label}</span>
+      <span className="text-[11px] text-[#999]">({count})</span>
+    </label>
+  );
 
-      {/* Sections */}
-      <div className="flex-1 overflow-y-auto">
-        {/* Marca */}
-        <AccordionSection
-          title="Marca"
-          count={filters.make ? 1 : undefined}
-          open={!!openSections.marca}
-          onToggle={() => toggle('marca')}
-        >
-          <div className="flex flex-wrap gap-1.5">
-            {makes.map(make => (
-              <button
-                key={make}
-                onClick={() => update({ make: filters.make === make ? undefined : make, model: undefined })}
-                className={pillClass(filters.make === make)}
-              >
-                {make}
-              </button>
-            ))}
-          </div>
-        </AccordionSection>
+  const applyBtn = (
+    <button
+      onClick={apply}
+      className="flex items-center justify-center gap-2 w-full py-2.5 bg-white border border-gray-300 text-[#1b2064] font-semibold rounded hover:bg-gray-50 transition-colors text-sm"
+    >
+      Ver {total} autos
+    </button>
+  );
 
-        {/* Modelo */}
-        {filters.make && models.length > 0 && (
-          <AccordionSection
-            title="Modelo"
-            count={filters.model ? 1 : undefined}
-            open={!!openSections.modelo}
-            onToggle={() => toggle('modelo')}
-          >
-            <div className="flex flex-wrap gap-1.5">
-              {models.map(model => (
-                <button
-                  key={model}
-                  onClick={() => update({ model: filters.model === model ? undefined : model })}
-                  className={pillClass(filters.model === model)}
-                >
-                  {model}
-                </button>
-              ))}
-            </div>
-          </AccordionSection>
+  return (
+    <div>
+      {/* Filter bar — horizontal */}
+      <div className="flex items-center bg-[#f8f8f8] border-b border-gray-200 overflow-x-auto">
+        <button onClick={() => toggle('marca')} className={barClass('marca')}>
+          Marca
+          {(filters.make) && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'marca' ? 'rotate-180' : ''}`} />
+        </button>
+
+        {filters.make && (
+          <button onClick={() => toggle('modelo')} className={barClass('modelo')}>
+            Modelo
+            {filters.model && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'modelo' ? 'rotate-180' : ''}`} />
+          </button>
         )}
 
-        {/* Precio */}
-        <AccordionSection
-          title="Precio"
-          count={filters.price ? 1 : undefined}
-          open={!!openSections.precio}
-          onToggle={() => toggle('precio')}
-        >
-          <RangeSlider
-            label="Precio (MXN)"
-            min={PRICE_MIN}
-            max={PRICE_MAX}
-            step={PRICE_STEP}
-            value={{
-              min: filters.price?.min ?? PRICE_MIN,
-              max: filters.price?.max ?? PRICE_MAX,
-            }}
-            onChange={(v) => update({
-              price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
-            })}
-            formatLabel={fmtPrice}
-          />
-        </AccordionSection>
+        <button onClick={() => toggle('precio')} className={barClass('precio')}>
+          Precio
+          {filters.price && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'precio' ? 'rotate-180' : ''}`} />
+        </button>
 
-        {/* Kilometraje */}
-        <AccordionSection
-          title="Kilometraje"
-          count={filters.mileage ? 1 : undefined}
-          open={!!openSections.kilometraje}
-          onToggle={() => toggle('kilometraje')}
-        >
-          <RangeSlider
-            label="Kilometraje"
-            min={MILEAGE_MIN}
-            max={MILEAGE_MAX}
-            step={MILEAGE_STEP}
-            value={{
-              min: filters.mileage?.min ?? MILEAGE_MIN,
-              max: filters.mileage?.max ?? MILEAGE_MAX,
-            }}
-            onChange={(v) => update({
-              mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
-            })}
-            formatLabel={fmtMileage}
-          />
-        </AccordionSection>
+        <button onClick={() => toggle('kilometraje')} className={barClass('kilometraje')}>
+          Kilometraje
+          {filters.mileage && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'kilometraje' ? 'rotate-180' : ''}`} />
+        </button>
 
-        {/* Año */}
-        <AccordionSection
-          title="Año"
-          count={filters.year ? 1 : undefined}
-          open={!!openSections.anio}
-          onToggle={() => toggle('anio')}
-        >
-          <RangeSlider
-            label="Año"
-            min={YEAR_MIN}
-            max={YEAR_MAX}
-            step={1}
-            value={{
-              min: filters.year?.min ?? YEAR_MIN,
-              max: filters.year?.max ?? YEAR_MAX,
-            }}
-            onChange={(v) => update({
-              year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
-            })}
-            formatLabel={(v) => String(v)}
-          />
-        </AccordionSection>
+        <button onClick={() => toggle('anio')} className={barClass('anio')}>
+          Año
+          {filters.year && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'anio' ? 'rotate-180' : ''}`} />
+        </button>
 
-        {/* Transmisión */}
-        <AccordionSection
-          title="Transmisión"
-          count={filters.transmission ? 1 : undefined}
-          open={!!openSections.transmision}
-          onToggle={() => toggle('transmision')}
-        >
-          <div className="flex flex-wrap gap-1.5">
-            {TRANSMISSION_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => update({ transmission: filters.transmission === opt.value ? undefined : opt.value })}
-                className={pillClass(filters.transmission === opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </AccordionSection>
+        <button onClick={() => toggle('transmision')} className={barClass('transmision')}>
+          Transmisión
+          {filters.transmission && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'transmision' ? 'rotate-180' : ''}`} />
+        </button>
 
-        {/* Combustible */}
-        <AccordionSection
-          title="Combustible"
-          count={filters.fuelType ? 1 : undefined}
-          open={!!openSections.combustible}
-          onToggle={() => toggle('combustible')}
-        >
-          <div className="flex flex-wrap gap-1.5">
-            {FUEL_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => update({ fuelType: filters.fuelType === opt.value ? undefined : opt.value })}
-                className={pillClass(filters.fuelType === opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </AccordionSection>
+        <button onClick={() => toggle('combustible')} className={barClass('combustible')}>
+          Combustible
+          {filters.fuelType && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'combustible' ? 'rotate-180' : ''}`} />
+        </button>
 
-        {/* Tipo de vehículo */}
-        <AccordionSection
-          title="Tipo de vehículo"
-          count={filters.vehicleType ? 1 : undefined}
-          open={!!openSections.tipo}
-          onToggle={() => toggle('tipo')}
-        >
-          <div className="flex flex-wrap gap-1.5">
-            {TYPE_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => update({ vehicleType: filters.vehicleType === opt.value ? undefined : opt.value })}
-                className={pillClass(filters.vehicleType === opt.value)}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </AccordionSection>
-      </div>
-
-      {/* Apply button */}
-      <div className="p-4 border-t border-gray-200 shrink-0">
-        <button
-          onClick={onClose}
-          className="w-full py-2.5 bg-[#3498DB] text-white text-sm font-semibold rounded hover:bg-[#2980B9] transition-colors"
-        >
-          Ver {total} vehículos
+        <button onClick={() => toggle('tipo')} className={`${barClass('tipo')} border-r-0`}>
+          Tipo
+          {filters.vehicleType && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'tipo' ? 'rotate-180' : ''}`} />
         </button>
       </div>
+
+      {/* Expanded dropdown panel */}
+      {openSection && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={close} />
+          <div className="relative z-40 bg-white border-b border-gray-200 shadow-lg">
+            <div className="container mx-auto px-4 py-4">
+
+              {/* Marca */}
+              {openSection === 'marca' && (
+                <div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0 max-h-64 overflow-y-auto">
+                    {makes.map(make => (
+                      <div key={make} onClick={() => updatePending({ make: pendingFilters.make === make ? undefined : make, model: undefined })}>
+                        {checkboxItem(make, makeCounts[make] || 0, pendingFilters.make === make, () => {})}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+
+              {/* Modelo */}
+              {openSection === 'modelo' && (
+                <div>
+                  {models.length > 0 ? (
+                    <>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0 max-h-64 overflow-y-auto">
+                        {models.map(model => (
+                          <div key={model} onClick={() => updatePending({ model: pendingFilters.model === model ? undefined : model })}>
+                            {checkboxItem(model, modelCounts[model] || 0, pendingFilters.model === model, () => {})}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 max-w-xs">{applyBtn}</div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-[#999]">Selecciona una marca primero</p>
+                  )}
+                </div>
+              )}
+
+              {/* Precio */}
+              {openSection === 'precio' && (
+                <div className="max-w-md">
+                  <RangeSlider
+                    label="Precio (MXN)"
+                    min={PRICE_MIN}
+                    max={PRICE_MAX}
+                    step={PRICE_STEP}
+                    value={{
+                      min: pendingFilters.price?.min ?? PRICE_MIN,
+                      max: pendingFilters.price?.max ?? PRICE_MAX,
+                    }}
+                    onChange={(v) => updatePending({
+                      price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
+                    })}
+                    formatLabel={fmtPrice}
+                  />
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+
+              {/* Kilometraje */}
+              {openSection === 'kilometraje' && (
+                <div className="max-w-md">
+                  <RangeSlider
+                    label="Kilometraje"
+                    min={MILEAGE_MIN}
+                    max={MILEAGE_MAX}
+                    step={MILEAGE_STEP}
+                    value={{
+                      min: pendingFilters.mileage?.min ?? MILEAGE_MIN,
+                      max: pendingFilters.mileage?.max ?? MILEAGE_MAX,
+                    }}
+                    onChange={(v) => updatePending({
+                      mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
+                    })}
+                    formatLabel={fmtMileage}
+                  />
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+
+              {/* Año */}
+              {openSection === 'anio' && (
+                <div className="max-w-md">
+                  <RangeSlider
+                    label="Año"
+                    min={YEAR_MIN}
+                    max={YEAR_MAX}
+                    step={1}
+                    value={{
+                      min: pendingFilters.year?.min ?? YEAR_MIN,
+                      max: pendingFilters.year?.max ?? YEAR_MAX,
+                    }}
+                    onChange={(v) => updatePending({
+                      year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
+                    })}
+                    formatLabel={(v) => String(v)}
+                  />
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+
+              {/* Transmisión */}
+              {openSection === 'transmision' && (
+                <div>
+                  <div className="flex flex-wrap gap-2">
+                    {TRANSMISSION_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => updatePending({ transmission: pendingFilters.transmission === opt.value ? undefined : opt.value })}
+                        className={`px-4 py-2 text-sm rounded-full border transition-colors ${
+                          pendingFilters.transmission === opt.value
+                            ? 'bg-[#3498DB] text-white border-[#3498DB]'
+                            : 'bg-white text-[#333] border-gray-300 hover:border-[#3498DB]/50'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+
+              {/* Combustible */}
+              {openSection === 'combustible' && (
+                <div>
+                  <div className="flex flex-wrap gap-2">
+                    {FUEL_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => updatePending({ fuelType: pendingFilters.fuelType === opt.value ? undefined : opt.value })}
+                        className={`px-4 py-2 text-sm rounded-full border transition-colors ${
+                          pendingFilters.fuelType === opt.value
+                            ? 'bg-[#3498DB] text-white border-[#3498DB]'
+                            : 'bg-white text-[#333] border-gray-300 hover:border-[#3498DB]/50'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+
+              {/* Tipo */}
+              {openSection === 'tipo' && (
+                <div>
+                  <div className="flex flex-wrap gap-2">
+                    {TYPE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => updatePending({ vehicleType: pendingFilters.vehicleType === opt.value ? undefined : opt.value })}
+                        className={`px-4 py-2 text-sm rounded-full border transition-colors ${
+                          pendingFilters.vehicleType === opt.value
+                            ? 'bg-[#3498DB] text-white border-[#3498DB]'
+                            : 'bg-white text-[#333] border-gray-300 hover:border-[#3498DB]/50'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
