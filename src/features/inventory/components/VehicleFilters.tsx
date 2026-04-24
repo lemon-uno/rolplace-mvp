@@ -10,6 +10,9 @@ interface VehicleFiltersProps {
   makeCounts: Record<string, number>;
   models: string[];
   modelCounts: Record<string, number>;
+  transmissionCounts: Record<string, number>;
+  fuelTypeCounts: Record<string, number>;
+  vehicleTypeCounts: Record<string, number>;
   onFiltersChange: (filters: VehicleFiltersType) => void;
   filters: VehicleFiltersType;
   total: number;
@@ -59,7 +62,7 @@ const TYPE_OPTIONS: { value: VehicleType; label: string }[] = [
 
 type FilterSection = 'marca' | 'modelo' | 'precio' | 'kilometraje' | 'anio' | 'transmision' | 'combustible' | 'tipo';
 
-export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFiltersChange, filters, total }: VehicleFiltersProps) {
+export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmissionCounts, fuelTypeCounts, vehicleTypeCounts, onFiltersChange, filters, total }: VehicleFiltersProps) {
   const [openSection, setOpenSection] = useState<FilterSection | null>(null);
   const [pendingFilters, setPendingFilters] = useState<VehicleFiltersType>(filters);
 
@@ -104,8 +107,7 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
       }`}>
         {checked && <Check className="w-3 h-3 text-white" />}
       </div>
-      <span className="flex-1">{label}</span>
-      <span className="text-[11px] text-[#999]">({count})</span>
+      <span className="flex-1">{label} ({count})</span>
     </label>
   );
 
@@ -290,7 +292,7 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0">
                     {TRANSMISSION_OPTIONS.map(opt => (
                       <div key={opt.value} onClick={() => toggleArrayItem('transmission', opt.value)}>
-                        {checkboxItem(opt.label, 0, (pendingFilters.transmission || []).includes(opt.value), () => {})}
+                        {checkboxItem(opt.label, transmissionCounts[opt.value] || 0, (pendingFilters.transmission || []).includes(opt.value), () => {})}
                       </div>
                     ))}
                   </div>
@@ -304,7 +306,7 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0">
                     {FUEL_OPTIONS.map(opt => (
                       <div key={opt.value} onClick={() => toggleArrayItem('fuelType', opt.value)}>
-                        {checkboxItem(opt.label, 0, (pendingFilters.fuelType || []).includes(opt.value), () => {})}
+                        {checkboxItem(opt.label, fuelTypeCounts[opt.value] || 0, (pendingFilters.fuelType || []).includes(opt.value), () => {})}
                       </div>
                     ))}
                   </div>
@@ -318,7 +320,7 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, onFilte
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0">
                     {TYPE_OPTIONS.map(opt => (
                       <div key={opt.value} onClick={() => toggleArrayItem('vehicleType', opt.value)}>
-                        {checkboxItem(opt.label, 0, (pendingFilters.vehicleType || []).includes(opt.value), () => {})}
+                        {checkboxItem(opt.label, vehicleTypeCounts[opt.value] || 0, (pendingFilters.vehicleType || []).includes(opt.value), () => {})}
                       </div>
                     ))}
                   </div>

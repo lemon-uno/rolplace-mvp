@@ -107,6 +107,30 @@ export function InventoryList() {
     return counts;
   }, [vehicles]);
 
+  const transmissionCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      counts[v.transmission] = (counts[v.transmission] || 0) + 1;
+    });
+    return counts;
+  }, [vehicles]);
+
+  const fuelTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      counts[v.fuelType] = (counts[v.fuelType] || 0) + 1;
+    });
+    return counts;
+  }, [vehicles]);
+
+  const vehicleTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    vehicles.forEach(v => {
+      counts[v.vehicleType] = (counts[v.vehicleType] || 0) + 1;
+    });
+    return counts;
+  }, [vehicles]);
+
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* Sticky top bar with sort + active chips */}
@@ -188,6 +212,9 @@ export function InventoryList() {
         makeCounts={makeCounts}
         models={models}
         modelCounts={modelCounts}
+        transmissionCounts={transmissionCounts}
+        fuelTypeCounts={fuelTypeCounts}
+        vehicleTypeCounts={vehicleTypeCounts}
         onFiltersChange={handleFiltersChange}
         filters={filters}
         total={total}
