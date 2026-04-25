@@ -5,6 +5,7 @@ import { VehicleFilters as VehicleFiltersType } from '../types/vehicle.types';
 import { InventoryService } from '../services/inventoryService';
 import { VehicleCard } from './VehicleCard';
 import { VehicleFilters } from './VehicleFilters';
+import { getDefaultFinancingSettings } from '@/actions/financing';
 import { ChevronDown, X } from 'lucide-react';
 
 type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'year_asc' | 'year_desc' | 'km_asc';
@@ -28,10 +29,12 @@ export function InventoryList() {
   const [filters, setFilters] = useState<VehicleFiltersType>({});
   const [sort, setSort] = useState<SortOption>('newest');
   const [showSort, setShowSort] = useState(false);
+  const [financingSettings, setFinancingSettings] = useState<{ tasaInteresAnual: number; plazoCreditoMeses: number; enganchePorcentaje: number } | null>(null);
 
   useEffect(() => {
     loadMakes();
     loadVehicles();
+    getDefaultFinancingSettings().then(setFinancingSettings);
   }, [filters, page]);
 
   useEffect(() => {
@@ -257,7 +260,7 @@ export function InventoryList() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
               {vehicles.map((vehicle) => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+                <VehicleCard key={vehicle.id} vehicle={vehicle} financingSettings={financingSettings} />
               ))}
             </div>
 

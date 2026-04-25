@@ -1,11 +1,17 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { Vehicle } from '../types/vehicle.types';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
   index?: number;
+  financingSettings?: {
+    tasaInteresAnual: number;
+    plazoCreditoMeses: number;
+    enganchePorcentaje: number;
+  } | null;
 }
 
 const fuelLabels: Record<string, string> = {
@@ -21,14 +27,26 @@ const transmissionLabels: Record<string, string> = {
   cvt: 'CVT',
 };
 
-export function VehicleCard({ vehicle }: VehicleCardProps) {
+export function VehicleCard({ vehicle, financingSettings }: VehicleCardProps) {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(price);
 
   const formatKm = (km: number) =>
     new Intl.NumberFormat('es-MX').format(km) + ' km';
 
-  const estimatedMonthly = Math.round(vehicle.price / 48);
+  const estimatedMonthly = useMemo(() => {
+    const tasa = financingSettings?.tasaInteresAnual ?? 11.5;
+    const plazo = financingSettings?.plazoCreditoMeses ?? 60;
+    const enganche = financingSettings?.enganchePorcentaje ?? 25;
+
+    const principal = vehicle.price * (1 - enganche / 100);
+    const monthlyRate = tasa / 100 / 12;
+
+    if (monthlyRate === 0) return Math.round(principal / plazo);
+
+    const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, plazo)) / (Math.pow(1 + monthlyRate, plazo) - 1);
+    return Math.round(payment);
+  }, [vehicle.price, financingSettings]);
 
   return (
     <Link href={`/inventory/${vehicle.slug}`} className="block group">

@@ -27,3 +27,19 @@ export async function getOwnerFinancingSettings(carId: string) {
     enganchePorcentaje: profile.enganche_porcentaje,
   }
 }
+
+export async function getDefaultFinancingSettings() {
+  const supabase = await createClient()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tasa_interes_anual, plazo_credito_meses, enganche_porcentaje')
+    .limit(1)
+    .single()
+
+  return {
+    tasaInteresAnual: profile?.tasa_interes_anual ?? 11.5,
+    plazoCreditoMeses: profile?.plazo_credito_meses ?? 60,
+    enganchePorcentaje: profile?.enganche_porcentaje ?? 25,
+  }
+}
