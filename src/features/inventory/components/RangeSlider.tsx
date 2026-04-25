@@ -61,27 +61,27 @@ export function RangeSlider({ min, max, step, value, onChange, formatLabel, labe
         <span>{fmt(minVal)}</span>
         <span>{fmt(maxVal)}</span>
       </div>
-      <div ref={trackRef} className="relative h-1 rounded-full bg-[#4a5f75] cursor-pointer select-none">
+      <div ref={trackRef} className="relative h-1 rounded-full bg-[#495f75] cursor-pointer select-none">
         {/* Active range */}
         <div
-          className="absolute h-full rounded-full bg-white"
+          className="absolute h-full rounded-full bg-[#1b2064]"
           style={{ left: `${pct(minVal)}%`, width: `${pct(maxVal) - pct(minVal)}%` }}
         />
         {/* Min thumb */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-lg border-2 border-cyan-500 cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#1b2064] shadow-lg border-2 border-[#1b2064] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
           style={{ left: `calc(${pct(minVal)}% - 10px)` }}
           onPointerDown={(e) => { e.preventDefault(); setDragging('min') }}
         >
-          <div className="w-1 h-2.5 bg-gray-400 rounded-full" />
+          <div className="w-1 h-2.5 bg-white rounded-full" />
         </div>
         {/* Max thumb */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-lg border-2 border-cyan-500 cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#1b2064] shadow-lg border-2 border-[#1b2064] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
           style={{ left: `calc(${pct(maxVal)}% - 10px)` }}
           onPointerDown={(e) => { e.preventDefault(); setDragging('max') }}
         >
-          <div className="w-1 h-2.5 bg-gray-400 rounded-full" />
+          <div className="w-1 h-2.5 bg-white rounded-full" />
         </div>
       </div>
     </div>

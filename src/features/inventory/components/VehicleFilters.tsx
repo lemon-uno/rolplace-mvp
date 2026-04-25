@@ -65,7 +65,7 @@ const TYPE_OPTIONS: { value: VehicleType; label: string }[] = [
   { value: 'todo_terreno', label: 'Todo Terreno' },
 ];
 
-type FilterSection = 'marca' | 'modelo' | 'precio' | 'kilometraje' | 'anio' | 'transmision' | 'combustible' | 'tipo';
+type FilterSection = 'marca' | 'modelo' | 'rangos' | 'transmision' | 'combustible' | 'tipo';
 
 export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmissionCounts, fuelTypeCounts, vehicleTypeCounts, onFiltersChange, filters, total }: VehicleFiltersProps) {
   const [openSection, setOpenSection] = useState<FilterSection | null>(null);
@@ -162,22 +162,10 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmi
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'modelo' ? 'rotate-180' : ''}`} />
           </button>
 
-          <button onClick={() => toggle('precio')} className={barClass('precio')}>
-            Precio
-            {hasActive('price') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'precio' ? 'rotate-180' : ''}`} />
-          </button>
-
-          <button onClick={() => toggle('kilometraje')} className={barClass('kilometraje')}>
-            Kilometraje
-            {hasActive('mileage') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'kilometraje' ? 'rotate-180' : ''}`} />
-          </button>
-
-          <button onClick={() => toggle('anio')} className={barClass('anio')}>
-            Año
-            {hasActive('year') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'anio' ? 'rotate-180' : ''}`} />
+          <button onClick={() => toggle('rangos')} className={barClass('rangos')}>
+            Precio Años Kilometros
+            {(hasActive('price') || hasActive('mileage') || hasActive('year')) && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'rangos' ? 'rotate-180' : ''}`} />
           </button>
 
           <button onClick={() => toggle('transmision')} className={barClass('transmision')}>
@@ -258,66 +246,54 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmi
                 </div>
               )}
 
-              {/* Precio */}
-              {openSection === 'precio' && (
-                <div className="max-w-md">
-                  <RangeSlider
-                    label="Precio (MXN)"
-                    min={PRICE_MIN}
-                    max={PRICE_MAX}
-                    step={PRICE_STEP}
-                    value={{
-                      min: pendingFilters.price?.min ?? PRICE_MIN,
-                      max: pendingFilters.price?.max ?? PRICE_MAX,
-                    }}
-                    onChange={(v) => updatePending({
-                      price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
-                    })}
-                    formatLabel={fmtPrice}
-                  />
-                  <div className="mt-4 max-w-xs">{applyBtn}</div>
-                </div>
-              )}
-
-              {/* Kilometraje */}
-              {openSection === 'kilometraje' && (
-                <div className="max-w-md">
-                  <RangeSlider
-                    label="Kilometraje"
-                    min={MILEAGE_MIN}
-                    max={MILEAGE_MAX}
-                    step={MILEAGE_STEP}
-                    value={{
-                      min: pendingFilters.mileage?.min ?? MILEAGE_MIN,
-                      max: pendingFilters.mileage?.max ?? MILEAGE_MAX,
-                    }}
-                    onChange={(v) => updatePending({
-                      mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
-                    })}
-                    formatLabel={fmtMileage}
-                  />
-                  <div className="mt-4 max-w-xs">{applyBtn}</div>
-                </div>
-              )}
-
-              {/* Año */}
-              {openSection === 'anio' && (
-                <div className="max-w-md">
-                  <RangeSlider
-                    label="Año"
-                    min={YEAR_MIN}
-                    max={YEAR_MAX}
-                    step={1}
-                    value={{
-                      min: pendingFilters.year?.min ?? YEAR_MIN,
-                      max: pendingFilters.year?.max ?? YEAR_MAX,
-                    }}
-                    onChange={(v) => updatePending({
-                      year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
-                    })}
-                    formatLabel={(v) => String(v)}
-                  />
-                  <div className="mt-4 max-w-xs">{applyBtn}</div>
+              {/* Precio, Año, Kilometraje — agrupados */}
+              {openSection === 'rangos' && (
+                <div className="max-w-xl mx-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <RangeSlider
+                      label="Precio (MXN)"
+                      min={PRICE_MIN}
+                      max={PRICE_MAX}
+                      step={PRICE_STEP}
+                      value={{
+                        min: pendingFilters.price?.min ?? PRICE_MIN,
+                        max: pendingFilters.price?.max ?? PRICE_MAX,
+                      }}
+                      onChange={(v) => updatePending({
+                        price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
+                      })}
+                      formatLabel={fmtPrice}
+                    />
+                    <RangeSlider
+                      label="Año"
+                      min={YEAR_MIN}
+                      max={YEAR_MAX}
+                      step={1}
+                      value={{
+                        min: pendingFilters.year?.min ?? YEAR_MIN,
+                        max: pendingFilters.year?.max ?? YEAR_MAX,
+                      }}
+                      onChange={(v) => updatePending({
+                        year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
+                      })}
+                      formatLabel={(v) => String(v)}
+                    />
+                    <RangeSlider
+                      label="Kilometraje"
+                      min={MILEAGE_MIN}
+                      max={MILEAGE_MAX}
+                      step={MILEAGE_STEP}
+                      value={{
+                        min: pendingFilters.mileage?.min ?? MILEAGE_MIN,
+                        max: pendingFilters.mileage?.max ?? MILEAGE_MAX,
+                      }}
+                      onChange={(v) => updatePending({
+                        mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
+                      })}
+                      formatLabel={fmtMileage}
+                    />
+                  </div>
+                  <div className="mt-4 max-w-xs mx-auto">{applyBtn}</div>
                 </div>
               )}
 
