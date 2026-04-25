@@ -246,54 +246,52 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmi
                 </div>
               )}
 
-              {/* Precio, Año, Kilometraje — agrupados */}
+              {/* Precio, Año, Kilometraje — agrupados en renglones */}
               {openSection === 'rangos' && (
-                <div className="max-w-xl mx-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <RangeSlider
-                      label="Precio (MXN)"
-                      min={PRICE_MIN}
-                      max={PRICE_MAX}
-                      step={PRICE_STEP}
-                      value={{
-                        min: pendingFilters.price?.min ?? PRICE_MIN,
-                        max: pendingFilters.price?.max ?? PRICE_MAX,
-                      }}
-                      onChange={(v) => updatePending({
-                        price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
-                      })}
-                      formatLabel={fmtPrice}
-                    />
-                    <RangeSlider
-                      label="Año"
-                      min={YEAR_MIN}
-                      max={YEAR_MAX}
-                      step={1}
-                      value={{
-                        min: pendingFilters.year?.min ?? YEAR_MIN,
-                        max: pendingFilters.year?.max ?? YEAR_MAX,
-                      }}
-                      onChange={(v) => updatePending({
-                        year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
-                      })}
-                      formatLabel={(v) => String(v)}
-                    />
-                    <RangeSlider
-                      label="Kilometraje"
-                      min={MILEAGE_MIN}
-                      max={MILEAGE_MAX}
-                      step={MILEAGE_STEP}
-                      value={{
-                        min: pendingFilters.mileage?.min ?? MILEAGE_MIN,
-                        max: pendingFilters.mileage?.max ?? MILEAGE_MAX,
-                      }}
-                      onChange={(v) => updatePending({
-                        mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
-                      })}
-                      formatLabel={fmtMileage}
-                    />
-                  </div>
-                  <div className="mt-4 max-w-xs mx-auto">{applyBtn}</div>
+                <div className="w-1/3 mx-auto space-y-6">
+                  <RangeSlider
+                    label="Precio (MXN)"
+                    min={PRICE_MIN}
+                    max={PRICE_MAX}
+                    step={PRICE_STEP}
+                    value={{
+                      min: pendingFilters.price?.min ?? PRICE_MIN,
+                      max: pendingFilters.price?.max ?? PRICE_MAX,
+                    }}
+                    onChange={(v) => updatePending({
+                      price: (v.min === PRICE_MIN && v.max === PRICE_MAX) ? undefined : v,
+                    })}
+                    formatLabel={fmtPrice}
+                  />
+                  <RangeSlider
+                    label="Año"
+                    min={YEAR_MIN}
+                    max={YEAR_MAX}
+                    step={1}
+                    value={{
+                      min: pendingFilters.year?.min ?? YEAR_MIN,
+                      max: pendingFilters.year?.max ?? YEAR_MAX,
+                    }}
+                    onChange={(v) => updatePending({
+                      year: (v.min === YEAR_MIN && v.max === YEAR_MAX) ? undefined : v,
+                    })}
+                    formatLabel={(v) => String(v)}
+                  />
+                  <RangeSlider
+                    label="Kilometraje"
+                    min={MILEAGE_MIN}
+                    max={MILEAGE_MAX}
+                    step={MILEAGE_STEP}
+                    value={{
+                      min: pendingFilters.mileage?.min ?? MILEAGE_MIN,
+                      max: pendingFilters.mileage?.max ?? MILEAGE_MAX,
+                    }}
+                    onChange={(v) => updatePending({
+                      mileage: (v.min === MILEAGE_MIN && v.max === MILEAGE_MAX) ? undefined : v,
+                    })}
+                    formatLabel={fmtMileage}
+                  />
+                  <div className="max-w-xs mx-auto">{applyBtn}</div>
                 </div>
               )}
 

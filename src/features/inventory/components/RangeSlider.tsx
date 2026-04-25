@@ -56,32 +56,32 @@ export function RangeSlider({ min, max, step, value, onChange, formatLabel, labe
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-200 mb-2">{label}</label>
-      <div className="flex justify-between text-xs text-gray-300 mb-1">
+      <label className="block text-xs font-medium text-[#9ca3af] mb-2">{label}</label>
+      <div className="flex justify-between text-xs text-[#9ca3af] mb-1">
         <span>{fmt(minVal)}</span>
         <span>{fmt(maxVal)}</span>
       </div>
-      <div ref={trackRef} className="relative h-1 rounded-full bg-[#495f75] cursor-pointer select-none">
+      <div ref={trackRef} className="relative h-[3px] rounded-full bg-[#9ca3af] cursor-pointer select-none">
         {/* Active range */}
         <div
-          className="absolute h-full rounded-full bg-[#1b2064]"
+          className="absolute h-full rounded-full bg-[#215add]"
           style={{ left: `${pct(minVal)}%`, width: `${pct(maxVal) - pct(minVal)}%` }}
         />
         {/* Min thumb */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#1b2064] shadow-lg border-2 border-[#1b2064] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
-          style={{ left: `calc(${pct(minVal)}% - 10px)` }}
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#215add] shadow-lg border-2 border-[#215add] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
+          style={{ left: `calc(${pct(minVal)}% - 8px)` }}
           onPointerDown={(e) => { e.preventDefault(); setDragging('min') }}
         >
-          <div className="w-1 h-2.5 bg-white rounded-full" />
+          <div className="w-0.5 h-2 bg-white rounded-full" />
         </div>
         {/* Max thumb */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#1b2064] shadow-lg border-2 border-[#1b2064] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
-          style={{ left: `calc(${pct(maxVal)}% - 10px)` }}
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-[#215add] shadow-lg border-2 border-[#215add] cursor-grab active:cursor-grabbing z-10 flex items-center justify-center hover:scale-110 transition-transform"
+          style={{ left: `calc(${pct(maxVal)}% - 8px)` }}
           onPointerDown={(e) => { e.preventDefault(); setDragging('max') }}
         >
-          <div className="w-1 h-2.5 bg-white rounded-full" />
+          <div className="w-0.5 h-2 bg-white rounded-full" />
         </div>
       </div>
     </div>
