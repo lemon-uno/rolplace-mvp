@@ -64,17 +64,12 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
 
           {/* Specs row */}
           <p className="text-[11px] text-[#777] mb-2">
-            {vehicle.year} &middot; {formatKm(vehicle.mileage)}
-            {vehicle.motor ? ` · ${vehicle.motor}` : ''} &middot; {transmissionLabels[vehicle.transmission] || vehicle.transmission}
+            {vehicle.year} | {formatKm(vehicle.mileage)}
+            {vehicle.motor ? ` | ${vehicle.motor}` : ''} | {transmissionLabels[vehicle.transmission] || vehicle.transmission}
           </p>
 
-          {/* Price */}
-          <p className="text-lg font-bold text-[#13141A] leading-tight">
-            {formatPrice(vehicle.price)}
-          </p>
-
-          {/* Badges + monthly */}
-          <div className="flex items-center justify-between mt-2">
+          {/* Badges left + Price right */}
+          <div className="flex items-start justify-between mt-2">
             <div className="flex gap-1.5">
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-[#555] border border-gray-200">
                 {transmissionLabels[vehicle.transmission]}
@@ -83,12 +78,17 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
                 {fuelLabels[vehicle.fuelType] || vehicle.fuelType}
               </span>
             </div>
+            <p className="text-lg font-bold text-[#13141A] leading-tight">
+              {formatPrice(vehicle.price)}
+            </p>
           </div>
 
-          {/* Monthly estimate */}
-          <p className="text-[11px] text-[#3498DB] font-medium mt-1.5">
-            Desde {formatPrice(estimatedMonthly)}/mes
-          </p>
+          {/* Monthly estimate — right aligned, yellow gradient bg */}
+          <div className="flex justify-end mt-1.5">
+            <span className="text-[11px] text-black font-medium px-2 py-0.5 rounded" style={{ background: 'linear-gradient(to right, #f8c65280, transparent)' }}>
+              Desde {formatPrice(estimatedMonthly)}/mes
+            </span>
+          </div>
         </div>
       </div>
     </Link>
