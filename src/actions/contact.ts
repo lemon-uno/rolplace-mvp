@@ -50,20 +50,24 @@ export async function submitContactForm(formData: FormData) {
     return { error: 'Error al guardar. Intenta nuevamente.' }
   }
 
-  // Send email in background — don't block the response
+  // Send email to publisher
   if (owner?.email) {
-    sendEmail({
-      to: owner.email,
-      subject: `Nuevo contacto — ${car.title}`,
-      react: React.createElement(ContactEmail, {
-        vehicleTitle: car.title,
-        contactName: name,
-        contactPhone: phone,
-        contactEmail: email,
-        preferredContact,
-        message,
-      }),
-    }).catch((err) => console.error('Contact email error:', err))
+    try {
+      await sendEmail({
+        to: owner.email,
+        subject: `Nuevo contacto — ${car.title}`,
+        react: React.createElement(ContactEmail, {
+          vehicleTitle: car.title,
+          contactName: name,
+          contactPhone: phone,
+          contactEmail: email,
+          preferredContact,
+          message,
+        }),
+      })
+    } catch (err) {
+      console.error('Contact email error:', err)
+    }
   }
 
   return { success: true }

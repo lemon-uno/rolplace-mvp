@@ -60,19 +60,23 @@ export async function submitAgendarCita(formData: FormData) {
   const whatsappLink = `https://wa.me/${data.contactPhone}?text=${encodeURIComponent(whatsappMsg)}`
 
   // Send email to publisher
-  sendEmail({
-    to: owner.email,
-    subject: `Nueva cita agendada — ${car.title}`,
-    react: React.createElement(CitaEmail, {
-      vehicleTitle: car.title,
-      fecha: fechaFormateada,
-      hora: data.time,
-      contactName: data.contactName,
-      contactEmail: data.contactEmail,
-      contactPhone: data.contactPhone,
-      whatsappLink,
-    }),
-  }).catch((err) => console.error('Cita email error:', err))
+  try {
+    await sendEmail({
+      to: owner.email,
+      subject: `Nueva cita agendada — ${car.title}`,
+      react: React.createElement(CitaEmail, {
+        vehicleTitle: car.title,
+        fecha: fechaFormateada,
+        hora: data.time,
+        contactName: data.contactName,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
+        whatsappLink,
+      }),
+    })
+  } catch (err) {
+    console.error('Cita email error:', err)
+  }
 
   return { success: true }
 }
