@@ -1,14 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import { VehicleFilters as VehicleFiltersType, VehicleTransmission, VehicleFuelType, VehicleType } from '../types/vehicle.types';
 import { RangeSlider } from './RangeSlider';
 
+interface ModelEntry {
+  make: string;
+  model: string;
+}
+
 interface VehicleFiltersProps {
   makes: string[];
   makeCounts: Record<string, number>;
-  models: string[];
+  models: ModelEntry[];
   modelCounts: Record<string, number>;
   transmissionCounts: Record<string, number>;
   fuelTypeCounts: Record<string, number>;
@@ -125,6 +130,21 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmi
     return Array.isArray(val) ? val.length > 0 : val !== undefined;
   };
 
+  const selectedMakeCount = (pendingFilters.make || []).length;
+  const showMakeLabel = (pendingFilters.make || []).length > 1;
+
+  // Split models into 3 columns, max 9 rows each
+  const modelColumns = useMemo(() => {
+    const cols: ModelEntry[][] = [[], [], []];
+    const MAX_ROWS = 9;
+    for (let i = 0; i < models.length; i++) {
+      const colIdx = Math.floor(i / MAX_ROWS);
+      if (colIdx >= 3) break;
+      cols[colIdx].push(models[i]);
+    }
+    return cols;
+  }, [models]);
+
   return (
     <div>
       {/* Filter bar — centered horizontal */}
@@ -136,13 +156,11 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmi
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'marca' ? 'rotate-180' : ''}`} />
           </button>
 
-          {hasActive('make') && (
-            <button onClick={() => toggle('modelo')} className={barClass('modelo')}>
-              Modelo
-              {hasActive('model') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'modelo' ? 'rotate-180' : ''}`} />
-            </button>
-          )}
+          <button onClick={() => toggle('modelo')} className={barClass('modelo')}>
+            Modelo
+            {hasActive('model') && <span className="w-1.5 h-1.5 rounded-full bg-[#3498DB]" />}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openSection === 'modelo' ? 'rotate-180' : ''}`} />
+          </button>
 
           <button onClick={() => toggle('precio')} className={barClass('precio')}>
             Precio
@@ -206,19 +224,36 @@ export function VehicleFilters({ makes, makeCounts, models, modelCounts, transmi
               {/* Modelo */}
               {openSection === 'modelo' && (
                 <div>
-                  {models.length > 0 ? (
+                  {selectedMakeCount === 0 ? (
+                    <p className="text-sm text-[#999]">Selecciona entre 1 y 3 marcas para ver modelos</p>
+                  ) : selectedMakeCount > 3 ? (
+                    <p className="text-sm text-[#999]">Selecciona máximo 3 marcas para ver modelos</p>
+                  ) : models.length === 0 ? (
+                    <p className="text-sm text-[#999]">No hay modelos disponibles</p>
+                  ) : (
                     <>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-0 max-h-64 overflow-y-auto">
-                        {models.map(model => (
-                          <div key={model} onClick={() => toggleArrayItem('model', model)}>
-                            {checkboxItem(model, modelCounts[model] || 0, (pendingFilters.model || []).includes(model), () => {})}
+                      <div className="grid grid-cols-3 gap-x-6 max-h-[320px] overflow-y-auto">
+                        {modelColumns.map((col, ci) => (
+                          <div key={ci}>
+                            {col.map((m, ri) => {
+                              const label = showMakeLabel ? `${m.model} (${m.make})` : m.model;
+                              const isFirstInMake = ri === 0 || col[ri - 1]?.make !== m.make;
+                              return (
+                                <div key={`${m.make}-${m.model}`}>
+                                  {isFirstInMake && showMakeLabel && (
+                                    <p className="text-[11px] font-bold text-[#1b2064] uppercase tracking-wide px-2 pt-2 pb-0.5">{m.make}</p>
+                                  )}
+                                  <div onClick={() => toggleArrayItem('model', m.model)}>
+                                    {checkboxItem(label, modelCounts[m.model] || 0, (pendingFilters.model || []).includes(m.model), () => {})}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         ))}
                       </div>
                       <div className="mt-4 max-w-xs">{applyBtn}</div>
                     </>
-                  ) : (
-                    <p className="text-sm text-[#999]">Selecciona una marca primero</p>
                   )}
                 </div>
               )}

@@ -22,7 +22,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 export function InventoryList() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [makes, setMakes] = useState<string[]>([]);
-  const [models, setModels] = useState<string[]>([]);
+  const [models, setModels] = useState<{ make: string; model: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

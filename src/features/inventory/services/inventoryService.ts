@@ -277,17 +277,30 @@ export class InventoryService {
   /**
    * Obtiene modelos por marca
    */
-  static async getModelsByMake(makes: string[]): Promise<string[]> {
+  static async getModelsByMake(makes: string[]): Promise<{ make: string; model: string }[]> {
     if (makes.length === 0) return [];
     const cars = await getCars();
-    const lowerMakes = makes.map(m => m.toLowerCase());
-    const models = Array.from(new Set(
-      cars
-        .filter(car => car.make && lowerMakes.includes(car.make.toLowerCase()))
+    const sortedMakes = [...makes].sort((a, b) => a.localeCompare(b));
+    const seen = new Set<string>();
+    const result: { make: string; model: string }[] = [];
+
+    for (const make of sortedMakes) {
+      const makeModels = cars
+        .filter(car => car.make?.toLowerCase() === make.toLowerCase())
         .map(car => car.model)
-        .filter((model): model is string => model !== null)
-    ));
-    return models.sort();
+        .filter((m): m is string => m !== null)
+        .sort();
+
+      for (const model of makeModels) {
+        const key = `${make}|${model}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push({ make, model });
+        }
+      }
+    }
+
+    return result;
   }
 
   /**
